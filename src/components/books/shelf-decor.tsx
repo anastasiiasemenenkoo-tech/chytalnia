@@ -6,6 +6,30 @@
  * theme through CSS variables.
  */
 
+/** One leaf, pointing up from the origin. Placed by rotating the group. */
+function Leaf({
+  rotate,
+  scale = 1,
+  fill,
+}: {
+  rotate: number;
+  scale?: number;
+  fill: string;
+}) {
+  return (
+    <g transform={`rotate(${rotate}) scale(${scale})`}>
+      <path d="M0 0C-7-8-7-20 0-28 7-20 7-8 0 0z" fill={fill} />
+      <path
+        d="M0-2v-22"
+        fill="none"
+        stroke="var(--leaf-vein)"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
 export function ShelfPlant() {
   return (
     <svg
@@ -14,24 +38,21 @@ export function ShelfPlant() {
       viewBox="0 0 64 88"
       className="pointer-events-none h-[88px] w-16 shrink-0 self-end"
     >
-      {/* A snake plant: blades, not blobs. Each leaf is one closed path that
-          starts narrow at the soil, swells, and comes back to a point. */}
-      <g fill="var(--leaf-deep)">
-        <path d="M30 60C24 46 16 32 9 22c8 9 17 23 22 38z" />
-        <path d="M34 60c6-14 14-28 21-38-8 9-17 23-22 38z" />
-      </g>
-      <g fill="var(--leaf)">
-        <path d="M29 60C25 44 21 26 19 10c5 14 10 32 13 50z" />
-        <path d="M35 60c4-16 8-34 10-50-5 14-10 32-13 50z" />
-        <path d="M31 60c-1-18-1-36 1-52 2 16 2 34 1 52z" />
+      {/* Big leaves rather than thin blades: at this size a broad shape
+          reads as a houseplant and a narrow one reads as grass. */}
+      <g transform="translate(32 60)">
+        <Leaf rotate={-58} scale={0.85} fill="var(--leaf-deep)" />
+        <Leaf rotate={58} scale={0.85} fill="var(--leaf-deep)" />
+        <Leaf rotate={-30} scale={1} fill="var(--leaf)" />
+        <Leaf rotate={30} scale={1} fill="var(--leaf)" />
+        <Leaf rotate={0} scale={1.15} fill="var(--leaf)" />
       </g>
 
-      {/* A straight-sided pot, tapering just enough to sit still. */}
       <path
-        d="M14 62h36l-4 22a4 4 0 0 1-4 3H22a4 4 0 0 1-4-3z"
+        d="M18 65h28l-2.5 18a3 3 0 0 1-3 2.5H23.5a3 3 0 0 1-3-2.5z"
         fill="var(--pot)"
       />
-      <rect x="11" y="56" width="42" height="8" rx="2" fill="var(--pot-rim)" />
+      <rect x="15" y="58" width="34" height="8" rx="2" fill="var(--pot-rim)" />
     </svg>
   );
 }
@@ -57,61 +78,68 @@ export function ShelfBookStack() {
 }
 
 /**
- * The cat, sitting at the end of the shelf with its eyes shut and its tail
- * curled round its feet. Every library has one.
+ * The cat, asleep on the shelf: curled into a loaf with its tail round its
+ * front and its chin on it. Every library has one.
+ *
+ * Curled rather than sitting — at sixty pixels a sleeping cat is one clean
+ * silhouette, while a sitting one is a head, a body and a tail all competing
+ * to be recognised at once.
  */
 export function ShelfCat() {
   return (
     <svg
       aria-hidden
       focusable="false"
-      viewBox="0 0 62 58"
-      className="pointer-events-none h-[58px] w-[62px] shrink-0 self-end"
+      viewBox="0 0 78 46"
+      className="pointer-events-none h-[46px] w-[78px] shrink-0 self-end"
     >
-      {/* Tail first, so the body sits in front of where it tucks in. */}
+      {/* The back: one arc from the tucked haunches up and over to the head. */}
       <path
-        d="M43 55c11-1 14-10 9-15"
+        d="M10 44C3 44 2 33 8 25 16 14 38 10 54 16 67 21 72 32 70 44z"
+        fill="var(--cat)"
+      />
+      {/* Tabby stripes over the spine. */}
+      <g
+        fill="none"
+        stroke="var(--cat-stripe)"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      >
+        <path d="M22 18c-2 3-3 5-3 8" />
+        <path d="M31 15c-2 3-3 6-3 9" />
+        <path d="M40 15c-1 3-2 6-2 9" />
+      </g>
+      {/* Ears, then the head resting on the paws. */}
+      <g fill="var(--cat)">
+        <path d="M47 22 44 10l11 7z" />
+        <path d="M68 24 71 13l-9 5z" />
+      </g>
+      <g fill="var(--cat-stripe)">
+        <path d="M48 20.5 46.5 13l6 4z" />
+        <path d="M67 21.5 68.5 15l-5 3z" />
+      </g>
+      <circle cx="58" cy="30" r="13" fill="var(--cat)" />
+      {/* Tail, laid along the front and tucked under the chin. */}
+      <path
+        d="M12 42C22 48 40 48 52 42"
         fill="none"
         stroke="var(--cat)"
         strokeWidth="7"
         strokeLinecap="round"
       />
-      {/* Body: narrow at the shoulders, spread at the haunches. */}
-      <path d="M19 56c-4-14-2-25 6-29h10c8 4 10 15 6 29z" fill="var(--cat)" />
-      <path d="M25 56c-2-9-1-15 4-17 5 2 6 8 4 17z" fill="var(--cat-belly)" />
-      {/* Ears, behind the head so only the tips show. */}
-      <g fill="var(--cat)">
-        <path d="M19 14 16 2l12 7z" />
-        <path d="M43 14 46 2 34 9z" />
-      </g>
-      <g fill="var(--cat-stripe)">
-        <path d="M20 12 18.5 5l6.5 4z" />
-        <path d="M42 12l1.5-7-6.5 4z" />
-      </g>
-      <circle cx="31" cy="20" r="13" fill="var(--cat)" />
-      {/* Tabby stripes: two over the brow, two along the back. */}
-      <g
-        fill="none"
-        stroke="var(--cat-stripe)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      >
-        <path d="M27 9c1 2 1 3 1 4" />
-        <path d="M35 9c-1 2-1 3-1 4" />
-        <path d="M20 38c2 1 3 2 4 2" />
-        <path d="M42 38c-2 1-3 2-4 2" />
-      </g>
-      {/* Asleep: two shut eyes and a small nose. */}
+      {/* The paws the chin is resting on. */}
+      <path d="M46 44a7 6 0 0 1 14 0z" fill="var(--cat-belly)" />
+      {/* Asleep. */}
       <g
         fill="none"
         stroke="var(--cat-ink)"
         strokeWidth="1.6"
         strokeLinecap="round"
       >
-        <path d="M23 20c1.5 2 4.5 2 6 0" />
-        <path d="M33 20c1.5 2 4.5 2 6 0" />
+        <path d="M52 29c1.5 2 4.5 2 6 0" />
+        <path d="M63 28.5c1 1.5 3 1.5 4 0" />
       </g>
-      <path d="M29.5 25h3l-1.5 2z" fill="var(--cat-ink)" />
+      <path d="M60.5 34h3l-1.5 2z" fill="var(--cat-ink)" />
     </svg>
   );
 }
