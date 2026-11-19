@@ -101,7 +101,12 @@ export default async function ClubDetailPage({
           bookId: club.currentlyReadingBookId,
           userId: { in: club.memberships.map((m) => m.userId) },
         },
-        select: { userId: true, pagesRead: true, totalPages: true },
+        select: {
+          userId: true,
+          pagesRead: true,
+          totalPages: true,
+          shelf: true,
+        },
       })
     : [];
   const progressByUserId = new Map(memberProgress.map((p) => [p.userId, p]));

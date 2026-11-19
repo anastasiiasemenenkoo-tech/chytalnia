@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getDictionary } from "@/i18n";
+import type { ShelfValue } from "@/lib/validators";
 
 function initials(input: string | null, fallback: string | null) {
   const src = (input ?? fallback ?? "").trim();
@@ -38,7 +39,14 @@ export async function ClubMembers({
     /** `email` is set only for the signed-in user's own row. */
     user: { id: string; name: string | null; email: string | null };
   }>;
-  progressByUserId: Map<string, { pagesRead: number | null; totalPages: number | null }>;
+  progressByUserId: Map<
+    string,
+    {
+      pagesRead: number | null;
+      totalPages: number | null;
+      shelf: ShelfValue;
+    }
+  >;
   hasCurrentBook: boolean;
   clubId: string;
   currentUserId: string;
@@ -101,8 +109,15 @@ export async function ClubMembers({
                     )}
                   </div>
                 </div>
+                {/* A reader who shelved the book as read has finished it,
+                    whatever page number they last typed in — the duel is won
+                    on the shelf, so the line has to say the same thing. */}
                 {hasCurrentBook &&
-                  (progress?.pagesRead != null && progress.totalPages ? (
+                  (progress?.shelf === "READ" ? (
+                    <p className="text-muted-foreground ml-11 text-xs">
+                      {dict.clubs.memberFinished}
+                    </p>
+                  ) : progress?.pagesRead != null && progress.totalPages ? (
                     <ReadingProgressBar
                       className="ml-11"
                       pagesRead={progress.pagesRead}

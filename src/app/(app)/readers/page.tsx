@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getDictionary, getLocale } from "@/i18n";
-import { interpolate } from "@/i18n/interpolate";
+import { plural } from "@/i18n/plural";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 
@@ -145,10 +145,9 @@ export default async function ReadersPage() {
             {dict.readers.peopleTitle}{" "}
             <span className="text-muted-foreground font-normal">
               ·{" "}
-              {interpolate(dict.readers.peopleCounts, {
-                following: followingIds.length,
-                followers: followers.length,
-              })}
+              {plural(dict.readers.followingCount, followingIds.length, locale)}
+              {" · "}
+              {plural(dict.readers.followersCount, followers.length, locale)}
             </span>
           </CardTitle>
         </CardHeader>

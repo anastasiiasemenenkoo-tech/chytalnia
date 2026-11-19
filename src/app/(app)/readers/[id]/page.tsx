@@ -16,8 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getDictionary } from "@/i18n";
-import { interpolate } from "@/i18n/interpolate";
+import { getDictionary, getLocale } from "@/i18n";
+import { plural } from "@/i18n/plural";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -40,6 +40,7 @@ export default async function ReaderProfilePage({
   const { id } = await params;
   const me = await requireCurrentUser();
   const dict = await getDictionary();
+  const locale = await getLocale();
 
   // No email in the select. A profile is a reading life, not a contact card.
   const reader = await prisma.user.findUnique({
@@ -124,10 +125,9 @@ export default async function ReaderProfilePage({
             </div>
             <p className="text-muted-foreground inline-flex items-center gap-1 text-xs">
               <Users className="h-3 w-3" />
-              {interpolate(dict.readers.followCounts, {
-                followers: followerCount,
-                following: followingCount,
-              })}
+              {plural(dict.readers.followersCount, followerCount, locale)}
+              {" · "}
+              {plural(dict.readers.followingCount, followingCount, locale)}
             </p>
           </div>
         </div>
