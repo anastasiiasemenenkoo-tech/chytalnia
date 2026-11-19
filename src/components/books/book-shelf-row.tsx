@@ -183,8 +183,12 @@ function LyingBook({ book, shelf }: { book: ShelfBook; shelf: ShelfValue }) {
     <Link
       href={`/books?shelf=${shelf}`}
       title={`${book.title} — ${book.author}`}
-      className="block w-24 rounded-[3px] px-2 py-1 text-[10px] leading-tight font-medium transition-transform duration-200 hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
-      style={{ backgroundColor: colour, color: "var(--spine-ink)" }}
+      className="block w-24 rounded-sm px-2 py-1 text-[10px] leading-tight font-medium transition-transform duration-200 hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+      style={{
+        backgroundColor: colour,
+        color: "var(--spine-ink)",
+        boxShadow: "inset 0 -2px 0 var(--page-edge)",
+      }}
     >
       <span className="block truncate">{book.title}</span>
     </Link>

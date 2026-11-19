@@ -104,6 +104,10 @@
   --spine-10: oklch(0.42 0.03 280);
   --spine-ink: oklch(0.97 0.01 275);
   --spine-band: oklch(1 0 0 / 30%);
+  /* The block of pages showing at the fore edge, and the dark seam where one
+     book presses against the next. Without them a shelf is a row of bars. */
+  --page-edge: oklch(0.92 0.022 85);
+  --spine-seam: oklch(0 0 0 / 18%);
 
   /* Foliage for the shelf decorations. */
   --leaf: oklch(0.6 0.12 155);
@@ -181,6 +185,8 @@
   --spine-10: oklch(0.49 0.035 280);
   --spine-ink: oklch(0.98 0.008 270);
   --spine-band: oklch(1 0 0 / 26%);
+  --page-edge: oklch(0.84 0.025 85);
+  --spine-seam: oklch(0 0 0 / 28%);
 
   --leaf: oklch(0.63 0.12 155);
   --leaf-deep: oklch(0.52 0.11 160);

@@ -45,6 +45,8 @@ export function BookshelfStrip() {
               marginInlineStart: spine.gapBefore ? 10 : undefined,
               transform: spine.lean ? `rotate(${spine.lean}deg)` : undefined,
               transformOrigin: "bottom right",
+              boxShadow:
+                "inset -3px 0 0 var(--page-edge), inset 1px 0 0 var(--spine-seam)",
             }}
           >
             {/* The two bands a hardback has stamped near its ends. */}

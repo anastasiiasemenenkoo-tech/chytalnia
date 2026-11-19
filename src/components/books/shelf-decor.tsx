@@ -96,6 +96,13 @@ export function ShelfBookStack() {
       <rect x="2" y="23" width="68" height="9" rx="3" fill="var(--spine-7)" />
       <rect x="7" y="13" width="59" height="9" rx="3" fill="var(--spine-2)" />
       <rect x="13" y="3" width="47" height="9" rx="3" fill="var(--spine-4)" />
+      {/* Seen from the side a stack is mostly pages, so each book shows a
+          band of them under its cover. */}
+      <g fill="var(--page-edge)">
+        <rect x="4" y="29" width="64" height="2.5" rx="1" />
+        <rect x="9" y="19" width="55" height="2.5" rx="1" />
+        <rect x="15" y="9" width="43" height="2.5" rx="1" />
+      </g>
       <g fill="var(--spine-band)">
         <rect x="2" y="26" width="68" height="1" />
         <rect x="7" y="16" width="59" height="1" />

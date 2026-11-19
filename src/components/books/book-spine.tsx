@@ -43,8 +43,15 @@ export function BookSpine({
       style={{ width, height }}
     >
       <span
-        className="flex h-full w-full flex-col items-center justify-between rounded-t-[3px] py-2 transition-transform duration-200 group-hover/spine:-translate-y-1.5 group-focus-visible/spine:-translate-y-1.5"
-        style={{ backgroundColor: colour }}
+        className="flex h-full w-full flex-col items-center justify-between rounded-t-sm py-2 transition-transform duration-200 group-hover/spine:-translate-y-1.5 group-focus-visible/spine:-translate-y-1.5"
+        style={{
+          backgroundColor: colour,
+          // The pages showing at the fore edge, and the dark seam where the
+          // next book presses against this one. Insets rather than elements:
+          // a spine is already four nested spans.
+          boxShadow:
+            "inset -3px 0 0 var(--page-edge), inset 1px 0 0 var(--spine-seam)",
+        }}
       >
         <span
           aria-hidden
