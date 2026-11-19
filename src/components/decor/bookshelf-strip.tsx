@@ -23,9 +23,13 @@ import { Plank } from "@/components/decor/plank";
  * of a short group because they did not fit upright.
  */
 
-/** Pastels, so the row is not twenty dark jewel tones in a line. */
-const pale = (spine: string, amount = 45) =>
-  `color-mix(in oklab, var(--spine-${spine}) ${amount}%, white)`;
+/** The decorative palette: brighter than the real spines, which have to carry
+ *  a white title and so cannot go light. */
+const deco = (n: number) => `var(--deco-${n})`;
+
+/** Pastels, so the row is not twenty saturated blocks in a line. */
+const pale = (n: number, amount = 40) =>
+  `color-mix(in oklab, var(--deco-${n}) ${amount}%, white)`;
 
 type Book = {
   width: number;
@@ -46,18 +50,18 @@ const run = (count: number, book: Book): Book[] =>
 
 /** Carried by a phone. */
 const CORE: Book[] = [
-  ...run(3, { width: 12, height: 86, colour: "var(--spine-7)", style: "foil" }),
-  { width: 8, height: 72, colour: "var(--spine-2)" },
-  { width: 18, height: 94, colour: "var(--spine-4)", style: "panel" },
+  ...run(3, { width: 12, height: 86, colour: deco(6), style: "foil" }),
+  { width: 8, height: 72, colour: deco(2) },
+  { width: 18, height: 94, colour: deco(1), style: "panel" },
   ...run(3, {
     width: 10,
     height: 80,
-    colour: pale("5"),
+    colour: pale(8),
     style: "block",
     light: true,
   }),
-  { width: 7, height: 66, colour: "var(--spine-9)" },
-  { width: 15, height: 84, colour: "var(--spine-1)", style: "dots" },
+  { width: 7, height: 66, colour: deco(4) },
+  { width: 15, height: 84, colour: deco(7), style: "dots" },
 ];
 
 /** Only once there is a shelf wider than a phone to put them on. */
@@ -65,30 +69,33 @@ const WIDE: Book[] = [
   {
     width: 20,
     height: 92,
-    colour: "var(--spine-6)",
+    colour: deco(5),
     style: "panel",
     // Leans back into the gap: books fall into empty space, not out of it.
     lean: -7,
     gapBefore: true,
   },
-  ...run(5, { width: 11, height: 88, colour: "var(--spine-8)", style: "foil" }),
-  { width: 9, height: 70, colour: "var(--spine-3)" },
+  ...run(5, { width: 11, height: 88, colour: deco(7), style: "foil" }),
+  { width: 9, height: 70, colour: deco(3), light: true },
   { width: 17, height: 96, colour: "var(--spine-10)", style: "stripe" },
   ...run(3, {
     width: 13,
     height: 78,
-    colour: pale("9", 55),
+    colour: pale(1, 45),
     style: "panel",
     light: true,
   }),
-  { width: 8, height: 64, colour: "var(--spine-5)" },
-  { width: 22, height: 90, colour: "var(--spine-1)", style: "block" },
+  { width: 8, height: 64, colour: deco(4) },
+  { width: 22, height: 90, colour: deco(1), style: "block" },
+  ...run(2, { width: 10, height: 76, colour: deco(5), style: "foil" }),
+  { width: 14, height: 82, colour: pale(3, 55), style: "dots", light: true },
+  { width: 19, height: 89, colour: deco(8), style: "panel" },
 ];
 
 /** The short run with two books lying flat on top of it. */
 const UNDER_FLATS: Book[] = [
-  ...run(2, { width: 12, height: 62, colour: "var(--spine-6)" }),
-  { width: 10, height: 60, colour: pale("3", 50), light: true },
+  ...run(2, { width: 12, height: 62, colour: deco(4) }),
+  { width: 10, height: 60, colour: pale(6, 50), light: true },
 ];
 
 function Printing({ book, ink }: { book: Book; ink: string }) {
@@ -199,11 +206,11 @@ export function BookshelfStrip() {
           <span className="absolute inset-x-0 -top-[13px] flex flex-col gap-px">
             <span
               className="h-[5px] rounded-sm"
-              style={{ backgroundColor: "var(--spine-2)" }}
+              style={{ backgroundColor: "var(--deco-6)" }}
             />
             <span
               className="h-[6px] rounded-sm"
-              style={{ backgroundColor: "var(--spine-4)" }}
+              style={{ backgroundColor: "var(--deco-2)" }}
             />
           </span>
           {UNDER_FLATS.map((book, i) => (

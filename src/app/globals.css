@@ -112,6 +112,19 @@
      a paperback series prints over the bottom half of every cover. */
   --spine-foil: oklch(0.83 0.11 85);
 
+  /* A second, brighter palette for the decorative shelf only. The real
+     `--spine-*` tokens have to carry a white title, which caps how light they
+     can go; these carry nothing, so they can be as loud as a paperback table
+     in a shop. */
+  --deco-1: oklch(0.6 0.19 25);
+  --deco-2: oklch(0.71 0.16 65);
+  --deco-3: oklch(0.78 0.15 95);
+  --deco-4: oklch(0.58 0.16 150);
+  --deco-5: oklch(0.62 0.13 205);
+  --deco-6: oklch(0.54 0.18 262);
+  --deco-7: oklch(0.52 0.19 305);
+  --deco-8: oklch(0.65 0.18 350);
+
   /* Foliage for the shelf decorations. */
   --leaf: oklch(0.6 0.12 155);
   --leaf-deep: oklch(0.47 0.1 160);
@@ -196,6 +209,15 @@
   --page-edge: oklch(0.84 0.025 85);
   --spine-seam: oklch(0 0 0 / 28%);
   --spine-foil: oklch(0.78 0.11 85);
+
+  --deco-1: oklch(0.58 0.18 25);
+  --deco-2: oklch(0.68 0.15 65);
+  --deco-3: oklch(0.74 0.14 95);
+  --deco-4: oklch(0.56 0.15 150);
+  --deco-5: oklch(0.6 0.12 205);
+  --deco-6: oklch(0.54 0.17 262);
+  --deco-7: oklch(0.52 0.18 305);
+  --deco-8: oklch(0.63 0.17 350);
 
   --leaf: oklch(0.63 0.12 155);
   --leaf-deep: oklch(0.52 0.11 160);
