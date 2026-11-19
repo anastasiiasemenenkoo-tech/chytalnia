@@ -5,7 +5,11 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { BookSpine, SPINE_MAX_HEIGHT } from "@/components/books/book-spine";
-import { ShelfBookStack, ShelfPlant } from "@/components/books/shelf-decor";
+import {
+  ShelfBookStack,
+  ShelfCat,
+  ShelfPlant,
+} from "@/components/books/shelf-decor";
 import { Plank } from "@/components/decor/plank";
 import { useDict, useLocale } from "@/i18n/provider";
 import { plural } from "@/i18n/plural";
@@ -43,7 +47,7 @@ export function BookShelfRow({
   shelf: ShelfValue;
   label: string;
   books: ShelfBook[];
-  decor: "plant" | "stack" | "none";
+  decor: "plant" | "stack" | "cat" | "none";
 }) {
   const dict = useDict();
   const locale = useLocale();
@@ -137,6 +141,7 @@ export function BookShelfRow({
               </p>
               {decor === "plant" && <ShelfPlant />}
               {decor === "stack" && <ShelfBookStack />}
+              {decor === "cat" && <ShelfCat />}
             </>
           ) : (
             <>
@@ -158,6 +163,7 @@ export function BookShelfRow({
               )}
               {decor === "plant" && <ShelfPlant />}
               {decor === "stack" && <ShelfBookStack />}
+              {decor === "cat" && <ShelfCat />}
             </>
           )}
         </div>

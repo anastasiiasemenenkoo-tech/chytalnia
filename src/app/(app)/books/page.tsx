@@ -133,7 +133,9 @@ export default async function BooksPage({
               label={dict.shelves[shelf]}
               // Alternating props keep four identical rows from reading as a
               // spreadsheet without turning the page into a still life.
-              decor={i % 2 === 0 ? "plant" : "stack"}
+              // Three props in rotation, so no two shelves in a row look
+              // alike and the cat turns up on one of them.
+              decor={(["plant", "stack", "cat"] as const)[i % 3]}
               books={userBooks
                 .filter((ub) => ub.shelf === shelf)
                 .map((ub) => ({

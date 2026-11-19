@@ -109,7 +109,15 @@
   --leaf: oklch(0.55 0.1 145);
   --leaf-deep: oklch(0.45 0.09 150);
   --pot: oklch(0.62 0.11 45);
+  --pot-rim: oklch(0.69 0.1 48);
   --bloom: oklch(0.68 0.11 265);
+
+  /* The shelf cat. Ginger, warmer than the plank so it doesn't disappear
+     into the wood it is sitting on. */
+  --cat: oklch(0.7 0.14 58);
+  --cat-stripe: oklch(0.58 0.15 45);
+  --cat-belly: oklch(0.93 0.04 70);
+  --cat-ink: oklch(0.3 0.04 40);
 }
 
 .dark {
@@ -173,7 +181,13 @@
   --leaf: oklch(0.6 0.11 145);
   --leaf-deep: oklch(0.5 0.1 150);
   --pot: oklch(0.58 0.1 45);
+  --pot-rim: oklch(0.65 0.1 48);
   --bloom: oklch(0.72 0.11 265);
+
+  --cat: oklch(0.66 0.14 58);
+  --cat-stripe: oklch(0.54 0.14 45);
+  --cat-belly: oklch(0.88 0.05 70);
+  --cat-ink: oklch(0.26 0.04 40);
 }
 
 @layer base {
