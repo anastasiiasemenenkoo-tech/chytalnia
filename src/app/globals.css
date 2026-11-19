@@ -125,7 +125,11 @@
   --cat: oklch(0.72 0.13 62);
   --cat-shade: oklch(0.64 0.13 55);
   --cat-stripe: oklch(0.56 0.14 45);
-  --cat-belly: oklch(0.93 0.04 70);
+  /* Ginger-and-white: the face, chest, paws and tail tip are white, and the
+     white needs a warm cast or it reads as a hole in the drawing. */
+  --cat-white: oklch(0.96 0.014 80);
+  --cat-white-shade: oklch(0.89 0.02 78);
+  --cat-nose: oklch(0.79 0.09 18);
   --cat-ink: oklch(0.3 0.04 40);
 }
 
@@ -199,7 +203,9 @@
   --cat: oklch(0.68 0.13 62);
   --cat-shade: oklch(0.6 0.13 55);
   --cat-stripe: oklch(0.52 0.13 45);
-  --cat-belly: oklch(0.88 0.05 70);
+  --cat-white: oklch(0.9 0.016 80);
+  --cat-white-shade: oklch(0.82 0.022 78);
+  --cat-nose: oklch(0.75 0.09 18);
   --cat-ink: oklch(0.26 0.04 40);
 }
 

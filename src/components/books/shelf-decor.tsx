@@ -119,6 +119,12 @@ export function ShelfBookStack() {
  * Curled rather than sitting — at sixty pixels a sleeping cat is one clean
  * silhouette, while a sitting one is a head, a body and a tail all competing
  * to be recognised at once.
+ *
+ * Ginger and white, drawn the way the markings actually fall: ginger over the
+ * back and across the top of the head like a cap, white on the face, chest,
+ * paws and the tip of the tail. Painting the ginger first and laying the
+ * white over it keeps every edge inside the silhouette — no clip paths, which
+ * would need an id, and this drawing appears more than once on a page.
  */
 export function ShelfCat() {
   return (
@@ -130,6 +136,22 @@ export function ShelfCat() {
     >
       <Contact cx={40} cy={44} rx={33} />
 
+      {/* Tail first: ginger, with the white tip laid over its end. */}
+      <path
+        d="M12 42C22 48 40 48 52 42"
+        fill="none"
+        stroke="var(--cat)"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12 42c3 1.8 6.5 3 10 3.6"
+        fill="none"
+        stroke="var(--cat-white)"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+
       {/* The back: one arc from the tucked haunches up and over to the head. */}
       <path
         d="M10 44C3 44 2 33 8 25 16 14 38 10 54 16 67 21 72 32 70 44z"
@@ -137,6 +159,7 @@ export function ShelfCat() {
       />
       {/* The far side of the curl, in shade. */}
       <path d="M10 44C3 44 2 33 8 25c-1 7 1 13 6 19z" fill="var(--cat-shade)" />
+      {/* Tabby stripes, which only run where the ginger does. */}
       <g
         fill="none"
         stroke="var(--cat-stripe)"
@@ -147,34 +170,42 @@ export function ShelfCat() {
         <path d="M31 15c-2 3-3 6-3 9" />
         <path d="M40 15c-1 3-2 6-2 9" />
       </g>
+
+      {/* Chest and front paws: white, and the haunch behind them too. */}
+      <path d="M41 44c0-6 5-11 11.5-11S64 38 64 44z" fill="var(--cat-white)" />
+      <path
+        d="M64 44c0-4 1.5-7 4-9 1.5 2.5 2.2 5.6 2 9z"
+        fill="var(--cat-white-shade)"
+      />
+
+      {/* Ears: ginger outside, because the cap comes down over them. */}
       <g fill="var(--cat)">
         <path d="M47 22 44 10l11 7z" />
         <path d="M68 24 71 13l-9 5z" />
       </g>
-      <g fill="var(--cat-stripe)">
+      <g fill="var(--cat-nose)">
         <path d="M48 20.5 46.5 13l6 4z" />
         <path d="M67 21.5 68.5 15l-5 3z" />
       </g>
-      <circle cx="58" cy="30" r="13" fill="var(--cat)" />
-      {/* Tail, laid along the front and tucked under the chin. */}
+
+      {/* The face is white; the ginger cap sits on top of it. */}
+      <circle cx="58" cy="30" r="13" fill="var(--cat-white)" />
       <path
-        d="M12 42C22 48 40 48 52 42"
-        fill="none"
-        stroke="var(--cat)"
-        strokeWidth="7"
-        strokeLinecap="round"
+        d="M45.4 27.4a13 13 0 0 1 25.2 0c-3.6-1.6-8.4-2.6-12.6-2.6s-9 1-12.6 2.6z"
+        fill="var(--cat)"
       />
-      <path d="M46 44a7 6 0 0 1 14 0z" fill="var(--cat-belly)" />
+
+      {/* Asleep. */}
       <g
         fill="none"
         stroke="var(--cat-ink)"
         strokeWidth="1.6"
         strokeLinecap="round"
       >
-        <path d="M52 29c1.5 2 4.5 2 6 0" />
-        <path d="M63 28.5c1 1.5 3 1.5 4 0" />
+        <path d="M52 31c1.5 2 4.5 2 6 0" />
+        <path d="M63 30.5c1 1.5 3 1.5 4 0" />
       </g>
-      <path d="M60.5 34h3l-1.5 2z" fill="var(--cat-ink)" />
+      <path d="M60.5 35.5h3l-1.5 2z" fill="var(--cat-nose)" />
     </svg>
   );
 }
