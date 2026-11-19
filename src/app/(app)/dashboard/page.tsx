@@ -1,28 +1,19 @@
 import Link from "next/link";
-import { ArrowRight, Library, Search, Users } from "lucide-react";
+import { Library, Search, Users } from "lucide-react";
 
 import { BookCard } from "@/components/books/book-card";
+import { ShelfPlant } from "@/components/books/shelf-decor";
+import { Plank } from "@/components/decor/plank";
 import { YearlyGoalCard } from "@/components/dashboard/yearly-goal-card";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { getDictionary } from "@/i18n";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import type { ShelfValue } from "@/lib/validators";
 
-const SHELVES: ShelfValue[] = [
-  "WANT_TO_READ",
-  "READING",
-  "READ",
-  "ABANDONED",
-];
+const SHELVES: ShelfValue[] = ["WANT_TO_READ", "READING", "READ", "ABANDONED"];
 
 export default async function DashboardPage() {
   const user = await requireCurrentUser();
@@ -73,40 +64,32 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {SHELVES.map((shelf) => (
-          <Card key={shelf}>
-            <CardHeader className="pb-2">
-              <CardDescription>{dict.shelves[shelf]}</CardDescription>
-              <CardTitle className="text-3xl">{counts[shelf] ?? 0}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Link
-                href={`/books?shelf=${shelf}`}
-                className="text-muted-foreground hover:text-foreground group inline-flex items-center text-xs transition-colors"
-              >
-                {dict.dashboard.view}{" "}
-                <ArrowRight className="ml-1 h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{dict.dashboard.bookClubsCard}</CardDescription>
-            <CardTitle className="text-3xl">{clubCount}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Link
-              href="/clubs"
-              className="text-muted-foreground hover:text-foreground group inline-flex items-center text-xs transition-colors"
-            >
-              {dict.dashboard.browse}{" "}
-              <ArrowRight className="ml-1 h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+      {/* The counts stand on the same board the books on /books stand on, so
+          the first screen belongs to the same room as the shelves. */}
+      <section>
+        {/* One row, never a wrapped grid: a shelf has one board, and five
+            stacked boxes with a plank under the last of them reads as a stray
+            brown bar. The tiles stretch to fill a wide screen and scroll on a
+            narrow one, exactly as the shelves on /books do. */}
+        <div className="flex items-end gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {SHELVES.map((shelf) => (
+            <CountTile
+              key={shelf}
+              href={`/books?shelf=${shelf}`}
+              label={dict.shelves[shelf]}
+              count={counts[shelf] ?? 0}
+            />
+          ))}
+          <CountTile
+            href="/clubs"
+            label={dict.dashboard.bookClubsCard}
+            count={clubCount}
+          />
+          {/* Something has to share the shelf with them. */}
+          <ShelfPlant />
+        </div>
+        <Plank />
+      </section>
 
       <YearlyGoalCard
         goal={userRecord?.yearlyGoal ?? null}
@@ -182,5 +165,30 @@ export default async function DashboardPage() {
         )}
       </section>
     </div>
+  );
+}
+
+/**
+ * One count, standing on the shelf. The whole tile is the link — a number
+ * this size is a better target than the "details" caption it used to carry,
+ * and the row stays quiet without six arrows in it.
+ */
+function CountTile({
+  href,
+  label,
+  count,
+}: {
+  href: string;
+  label: string;
+  count: number;
+}) {
+  return (
+    <Link
+      href={href}
+      className="bg-card focus-visible:ring-ring/50 flex min-w-[7rem] flex-1 shrink-0 flex-col gap-1 rounded-t-xl rounded-b-[3px] px-4 py-3 shadow-[0_2px_12px_-6px_var(--shelf-contact)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:-translate-y-0.5 focus-visible:ring-[3px] focus-visible:outline-none"
+    >
+      <span className="text-muted-foreground truncate text-xs">{label}</span>
+      <span className="font-heading text-3xl leading-none">{count}</span>
+    </Link>
   );
 }

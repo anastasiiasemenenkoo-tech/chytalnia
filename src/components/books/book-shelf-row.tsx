@@ -10,6 +10,7 @@ import {
   spineColour,
 } from "@/components/books/book-spine";
 import { ShelfBookStack, ShelfPlant } from "@/components/books/shelf-decor";
+import { Plank } from "@/components/decor/plank";
 import { useDict, useLocale } from "@/i18n/provider";
 import { plural } from "@/i18n/plural";
 import { cn } from "@/lib/utils";
@@ -165,29 +166,8 @@ export function BookShelfRow({
           )}
         </div>
 
-        {/* The plank sits below the books rather than in front of them: seen
-            straight on, you get the lit top face, then the darker front edge,
-            then the shadow it throws on the wall. */}
-        <div aria-hidden className="pointer-events-none">
-          <div
-            className="h-1.5 rounded-t-[3px]"
-            style={{
-              backgroundColor: "var(--shelf-wood-lit)",
-              // Where the books meet the wood.
-              boxShadow: "inset 0 2px 3px -2px var(--shelf-contact)",
-            }}
-          />
-          <div
-            className="h-3 rounded-b-[3px]"
-            style={{
-              // Darkening towards the bottom rounds the front edge off; a flat
-              // fill reads as a coloured bar rather than a board.
-              backgroundImage:
-                "linear-gradient(to bottom, var(--shelf-wood), var(--shelf-wood-edge))",
-              boxShadow: "0 7px 14px -8px var(--shelf-contact)",
-            }}
-          />
-        </div>
+        {/* The plank sits below the books rather than in front of them. */}
+        <Plank />
       </div>
     </section>
   );

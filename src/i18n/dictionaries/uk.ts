@@ -226,8 +226,6 @@ export const uk = {
     title: "Моя Читальня",
     subtitle: "Все твоє читання — на одному розвороті.",
     bookClubsCard: "Книжкові клуби",
-    browse: "Переглянути",
-    view: "Деталі",
     currentlyReading: "Читаю зараз",
     notReadingYet: "Тиша. Навіть сторінки не шелестять.",
     findYourNextBook: "Знайти наступну книгу",

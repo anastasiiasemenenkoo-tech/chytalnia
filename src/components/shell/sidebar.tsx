@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { Plank } from "@/components/decor/plank";
 import { useDict } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -88,15 +89,18 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 export function SidebarBrand() {
   const dict = useDict();
   return (
-    <div className="flex h-14 items-center gap-2 border-b px-5">
-      <BookOpen className="h-5 w-5" />
-      <div className="flex flex-col leading-tight">
-        <span className="text-base font-semibold">{dict.brand}</span>
-        <span className="text-sidebar-foreground/60 text-[10px] italic">
-          {dict.tagline}
-        </span>
+    <>
+      <div className="flex h-14 items-center gap-2 px-5">
+        <BookOpen className="h-5 w-5" />
+        <div className="flex flex-col leading-tight">
+          <span className="text-base font-semibold">{dict.brand}</span>
+          <span className="text-sidebar-foreground/60 text-[10px] italic">
+            {dict.tagline}
+          </span>
+        </div>
       </div>
-    </div>
+      <Plank size="rail" />
+    </>
   );
 }
 

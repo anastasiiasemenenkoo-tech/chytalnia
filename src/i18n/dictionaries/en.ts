@@ -211,8 +211,6 @@ export const en: Dictionary = {
     title: "My reading room",
     subtitle: "A snapshot of your reading life.",
     bookClubsCard: "Book clubs",
-    browse: "Browse",
-    view: "View",
     currentlyReading: "Currently reading",
     notReadingYet: "Quiet in here. Not a page rustling.",
     findYourNextBook: "Find your next book",
