@@ -108,6 +108,9 @@
      book presses against the next. Without them a shelf is a row of bars. */
   --page-edge: oklch(0.92 0.022 85);
   --spine-seam: oklch(0 0 0 / 18%);
+  /* The gold stamped across a hardback's spine, and the block of flat colour
+     a paperback series prints over the bottom half of every cover. */
+  --spine-foil: oklch(0.83 0.11 85);
 
   /* Foliage for the shelf decorations. */
   --leaf: oklch(0.6 0.12 155);
@@ -192,6 +195,7 @@
   --spine-band: oklch(1 0 0 / 26%);
   --page-edge: oklch(0.84 0.025 85);
   --spine-seam: oklch(0 0 0 / 28%);
+  --spine-foil: oklch(0.78 0.11 85);
 
   --leaf: oklch(0.63 0.12 155);
   --leaf-deep: oklch(0.52 0.11 160);
