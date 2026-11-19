@@ -30,7 +30,7 @@ export default async function AuthLayout({
       {/* The card stands in front of a shelf, so the first screen of the app
           is already the room the app is about. Wider than the card, so it
           reads as furniture behind it rather than a base under it. */}
-      <div className="mt-10 w-full max-w-lg">
+      <div className="mt-10 w-full max-w-2xl">
         <BookshelfStrip />
       </div>
     </div>
