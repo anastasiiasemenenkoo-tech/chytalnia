@@ -1,10 +1,5 @@
-import { BookCover } from "@/components/books/book-cover";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Spine } from "@/components/decor/spine";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDictionary, getLocale } from "@/i18n";
 import { interpolate } from "@/i18n/interpolate";
 import { prisma } from "@/lib/db";
@@ -15,7 +10,7 @@ export async function ClubReadingHistory({ clubId }: { clubId: string }) {
 
   const history = await prisma.clubReadingHistory.findMany({
     where: { clubId, endedAt: { not: null } },
-    include: { book: { select: { title: true, author: true, coverUrl: true } } },
+    include: { book: { select: { title: true, author: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -40,10 +35,14 @@ export async function ClubReadingHistory({ clubId }: { clubId: string }) {
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2">
             {history.map((h) => (
-              <li key={h.id} className="flex gap-3">
-                <div className="w-14 shrink-0">
-                  <BookCover src={h.book.coverUrl} alt={h.book.title} />
-                </div>
+              <li key={h.id} className="flex items-stretch gap-3">
+                {/* A finished book is back on the shelf, spine out. */}
+                <Spine
+                  title={h.book.title}
+                  label={`${h.book.title} — ${h.book.author}`}
+                  silent
+                  className="w-7 rounded-t-[3px]"
+                />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{h.book.title}</p>
                   <p className="text-muted-foreground truncate text-xs">

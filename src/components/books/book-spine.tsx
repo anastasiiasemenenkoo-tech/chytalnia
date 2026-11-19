@@ -3,34 +3,11 @@
 import Link from "next/link";
 
 import { BookCover } from "@/components/books/book-cover";
+import { hashTitle, spineColour } from "@/lib/spine";
 import type { ShelfValue } from "@/lib/validators";
 
 /** Tallest a spine can get; the row reserves exactly this much height. */
 export const SPINE_MAX_HEIGHT = 168;
-
-const SPINE_COLOURS = 10;
-
-/**
- * Stable per-title hash. Two books never swap colours between renders or
- * between server and client, which a random pick would.
- *
- * FNV-1a rather than the usual `hash * 31 + c`: that one barely mixes the
- * low bits, and a shelf of similar Ukrainian titles came out four shades of
- * the same olive.
- */
-function hashTitle(title: string) {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < title.length; i++) {
-    hash ^= title.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return hash >>> 0;
-}
-
-/** Shared with the lying-flat books so a title keeps its colour there too. */
-export function spineColour(title: string) {
-  return `var(--spine-${(hashTitle(title) % SPINE_COLOURS) + 1})`;
-}
 
 /**
  * Real shelves are uneven, so width and height come off the same hash —

@@ -13,6 +13,7 @@ import { ClubReviews } from "@/components/clubs/club-reviews";
 import { ClubSchedule } from "@/components/clubs/club-schedule";
 import { JoinLeaveButton } from "@/components/clubs/join-leave-button";
 import { SetCurrentBook } from "@/components/clubs/set-current-book";
+import { Plank } from "@/components/decor/plank";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -177,11 +178,14 @@ export default async function ClubDetailPage({
             {club.currentlyReadingBook ? (
               <div className="space-y-3">
                 <div className="flex gap-4">
+                  {/* Standing on its own board, the way it would be if the
+                      club kept a copy on the wall. */}
                   <div className="w-20 shrink-0">
                     <BookCover
                       src={club.currentlyReadingBook.coverUrl}
                       alt={club.currentlyReadingBook.title}
                     />
+                    <Plank size="rail" className="-mt-px" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-sm font-medium">
@@ -268,7 +272,11 @@ export default async function ClubDetailPage({
         />
       )}
 
-      <ClubDiscussion clubId={club.id} currentUserId={user.id} isOwner={isOwner} />
+      <ClubDiscussion
+        clubId={club.id}
+        currentUserId={user.id}
+        isOwner={isOwner}
+      />
 
       <ClubReadingHistory clubId={club.id} />
     </div>

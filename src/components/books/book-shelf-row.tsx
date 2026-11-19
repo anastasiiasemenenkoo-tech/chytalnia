@@ -4,15 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import {
-  BookSpine,
-  SPINE_MAX_HEIGHT,
-  spineColour,
-} from "@/components/books/book-spine";
+import { BookSpine, SPINE_MAX_HEIGHT } from "@/components/books/book-spine";
 import { ShelfBookStack, ShelfPlant } from "@/components/books/shelf-decor";
 import { Plank } from "@/components/decor/plank";
 import { useDict, useLocale } from "@/i18n/provider";
 import { plural } from "@/i18n/plural";
+import { spineColour } from "@/lib/spine";
 import { cn } from "@/lib/utils";
 import type { ShelfValue } from "@/lib/validators";
 
@@ -80,9 +77,8 @@ export function BookShelfRow({
 
   const lying =
     books.length >= LYING_THRESHOLD ? books.slice(-LYING_COUNT) : [];
-  const standing = books.length >= LYING_THRESHOLD
-    ? books.slice(0, -LYING_COUNT)
-    : books;
+  const standing =
+    books.length >= LYING_THRESHOLD ? books.slice(0, -LYING_COUNT) : books;
 
   return (
     <section className="space-y-2">
@@ -174,13 +170,7 @@ export function BookShelfRow({
 }
 
 /** A book resting on its side at the end of a full row. */
-function LyingBook({
-  book,
-  shelf,
-}: {
-  book: ShelfBook;
-  shelf: ShelfValue;
-}) {
+function LyingBook({ book, shelf }: { book: ShelfBook; shelf: ShelfValue }) {
   const colour = spineColour(book.title);
 
   return (
