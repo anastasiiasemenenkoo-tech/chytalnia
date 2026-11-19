@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { signOut } from "@/auth";
 import { getDictionary } from "@/i18n";
 import { interpolate } from "@/i18n/interpolate";
+import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/mailer";
 import { requireCurrentUser } from "@/lib/session";
@@ -87,7 +88,7 @@ export async function updateProfile(
     },
   });
 
-  const baseUrl = process.env.APP_URL ?? "http://localhost:3000";
+  const baseUrl = appUrl();
   const confirmUrl = `${baseUrl}/confirm-email?token=${token.raw}`;
 
   try {

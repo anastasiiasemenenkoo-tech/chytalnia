@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import { signIn, signOut } from "@/auth";
 import { getDictionary } from "@/i18n";
 import { sendEmail } from "@/lib/mailer";
+import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { createToken, hashToken, TOKEN_TTL_MS } from "@/lib/tokens";
@@ -190,7 +191,7 @@ export async function requestPasswordResetAction(
       },
     });
 
-    const baseUrl = process.env.APP_URL ?? "http://localhost:3000";
+    const baseUrl = appUrl();
     const resetUrl = `${baseUrl}/reset-password?token=${token.raw}`;
 
     try {
