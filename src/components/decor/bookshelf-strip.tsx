@@ -20,7 +20,8 @@ const SPINES = [
   { width: 16, height: 76, colour: "var(--spine-2)" },
   { width: 15, height: 80, colour: "var(--spine-4)" },
   { width: 26, height: 92, colour: "var(--spine-9)" },
-  { width: 14, height: 68, colour: "var(--spine-5)" },
+  // Leaning into the gap, the way the last book in a row does.
+  { width: 14, height: 68, colour: "var(--spine-5)", lean: 7 },
   // The gap. Somebody is reading that one.
   { width: 20, height: 84, colour: "var(--spine-1)", gapBefore: true },
   { width: 17, height: 72, colour: "var(--spine-6)" },
@@ -36,12 +37,14 @@ export function BookshelfStrip() {
         {SPINES.map((spine, i) => (
           <span
             key={i}
-            className="flex shrink-0 flex-col items-center justify-between rounded-t-[3px] py-2"
+            className="flex shrink-0 flex-col items-center justify-between rounded-t-md py-2"
             style={{
               width: spine.width,
               height: spine.height,
               backgroundColor: spine.colour,
               marginInlineStart: spine.gapBefore ? 10 : undefined,
+              transform: spine.lean ? `rotate(${spine.lean}deg)` : undefined,
+              transformOrigin: "bottom right",
             }}
           >
             {/* The two bands a hardback has stamped near its ends. */}
