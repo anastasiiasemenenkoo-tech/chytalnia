@@ -63,7 +63,8 @@ const UNDER_FLATS: Book[] = [
 function Spine({ book }: { book: Book }) {
   return (
     <span
-      className="block shrink-0 overflow-hidden rounded-t-md"
+      // Square tops, as in the reference: a book is cut, not moulded.
+      className="block shrink-0 overflow-hidden"
       style={{
         width: book.width,
         height: book.height,
@@ -97,11 +98,11 @@ export function BookshelfStrip() {
         <span className="relative hidden shrink-0 items-end gap-px sm:flex">
           <span className="absolute inset-x-0 -top-[13px] flex flex-col gap-px">
             <span
-              className="h-[5px] rounded-sm"
+              className="h-[5px]"
               style={{ backgroundColor: "var(--deco-blue)" }}
             />
             <span
-              className="h-[6px] rounded-sm"
+              className="h-[6px]"
               style={{ backgroundColor: "var(--deco-vermilion)" }}
             />
           </span>
