@@ -121,7 +121,8 @@ export const uk = {
       many: "{count} підписників",
       other: "{count} підписників",
     },
-    peopleEmpty: "Тут порожньо. Підписки починаються зі списку учасників клубу.",
+    peopleEmpty:
+      "Тут порожньо. Підписки починаються зі списку учасників клубу.",
     followsYou: "Підписаний(-а) на тебе",
     friend: "Взаємно",
     follow: "Підписатися",
@@ -160,13 +161,13 @@ export const uk = {
     featureClubsTitle: "Твої клуби",
     featureClubsBody:
       "Долучайся до клубу або створи свій і обирай, що читати разом.",
-    builtOn: "Зроблено на Next.js 16 · Auth.js · Prisma · Tailwind v4 · shadcn/ui",
+    builtOn:
+      "Зроблено на Next.js 16 · Auth.js · Prisma · Tailwind v4 · shadcn/ui",
   },
   auth: {
     signupTitle: "Створи акаунт",
-    signupSubtitle:
-      "Почни стежити за своїм читанням і долучайся до клубів.",
-    loginTitle: "З поверненням",
+    signupSubtitle: "Почни стежити за своїм читанням і долучайся до клубів.",
+    loginTitle: "З поверненням!",
     loginSubtitle: "Увійди до своєї читальні.",
     name: "Ім’я",
     email: "Електронна пошта",
@@ -213,7 +214,8 @@ export const uk = {
       invalidEmail:
         "За такою адресою лист не дійде. Треба щось на кшталт chytach@poshta.com.",
       nameRequired: "А як до тебе звертатися? Без імені не пустимо.",
-      nameLettersOnly: "Тільки літери, будь ласка — цифри лишимо для номерів сторінок.",
+      nameLettersOnly:
+        "Тільки літери, будь ласка — цифри лишимо для номерів сторінок.",
       passwordTooShort:
         "Це радше анотація, ніж пароль. Треба хоча б 8 символів.",
       passwordRequired: "Порожня сторінка — гарно, але тут потрібен пароль.",
@@ -361,7 +363,8 @@ export const uk = {
     owner: "Власник",
     joinedToast: "Готово, ти у клубі!",
     leftToast: "Ти більше не у клубі.",
-    ownerCannotLeave: "Власник не йде з власного клубу — хтось же тримає ключі.",
+    ownerCannotLeave:
+      "Власник не йде з власного клубу — хтось же тримає ключі.",
     backToClubs: "До списку клубів",
     notMember: "Ти поки не в цьому клубі.",
     invalid: "Такого клубу немає.",

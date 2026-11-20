@@ -62,7 +62,8 @@ export const en: Dictionary = {
     changeEmailCta: "Confirm this address",
     changeEmailIgnore:
       "If this wasn't you, just ignore this letter — nothing will change.",
-    changeEmailNoticeSubject: "Your account address is being changed — Chytal'nia",
+    changeEmailNoticeSubject:
+      "Your account address is being changed — Chytal'nia",
     changeEmailNoticeBody:
       "Someone asked to move this Chytal'nia account to {email}. Until that address is confirmed by the link we sent it, you still sign in here. If this wasn't you, change your password.",
     confirmTitle: "Your new address",
@@ -92,7 +93,8 @@ export const en: Dictionary = {
     subtitle: "Who's finishing what — and who's reading alongside you.",
     feedTitle: "Just finished",
     feedFinished: "finished",
-    feedNobody: "You aren't following anyone yet. Clubs are where the people are.",
+    feedNobody:
+      "You aren't following anyone yet. Clubs are where the people are.",
     feedQuiet: "Quiet so far. Nobody has finished anything.",
     peopleTitle: "Your readers",
     followingCount: {
@@ -151,7 +153,7 @@ export const en: Dictionary = {
   auth: {
     signupTitle: "Create your account",
     signupSubtitle: "Start tracking your reading and join book clubs.",
-    loginTitle: "Welcome back",
+    loginTitle: "Welcome back!",
     loginSubtitle: "Sign in to your bookshelf.",
     name: "Name",
     email: "Email",
@@ -170,7 +172,8 @@ export const en: Dictionary = {
     signupLink: "Create an account",
     invalidCreds: "Email or password doesn't match. One of the two is off.",
     emailTaken: "This email is already on the register. Sign in instead?",
-    couldNotSignIn: "Account created, but we couldn't let you in. Try signing in.",
+    couldNotSignIn:
+      "Account created, but we couldn't let you in. Try signing in.",
     forgotPasswordLink: "Forgot password?",
     forgotPasswordTitle: "Reset your password",
     forgotPasswordSubtitle:
@@ -301,7 +304,7 @@ export const en: Dictionary = {
     importSubtitle: "Bring your whole reading history over in one file.",
     importHowToTitle: "How to export from Goodreads",
     importHowToBody:
-      "On Goodreads: My Books → \"Import and export\" at the bottom of the left menu → \"Export Library\" → wait for the download link → download the CSV and pick it below.",
+      'On Goodreads: My Books → "Import and export" at the bottom of the left menu → "Export Library" → wait for the download link → download the CSV and pick it below.',
     importSubmit: "Upload CSV",
     importSubmitting: "Importing…",
     importSuccess: "Done: added {imported}, skipped {skipped}.",
@@ -365,7 +368,8 @@ export const en: Dictionary = {
     ownerOnly: "Only the club owner can do that.",
     editAction: "Edit",
     editTitle: "Club settings",
-    editSubtitle: "The name and description are visible to everyone who visits.",
+    editSubtitle:
+      "The name and description are visible to everyone who visits.",
     editSubmit: "Save",
     editSaving: "Saving…",
     editSaved: "Club updated.",
@@ -445,7 +449,8 @@ export const en: Dictionary = {
     challenge: "Challenge",
     challengeSent: "Challenge thrown",
     historyTitle: "Previously read",
-    historyEmpty: "Not one book finished. The club's history is still being written.",
+    historyEmpty:
+      "Not one book finished. The club's history is still being written.",
     historyDateRange: "{start} – {end}",
   },
   duels: {
