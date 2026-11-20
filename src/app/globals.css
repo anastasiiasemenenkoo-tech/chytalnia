@@ -131,13 +131,15 @@
   /* The shelf props are drawn in the same flat vocabulary as the books, out
      of the same palette: no gradients, no shadows, ornament made of dots,
      diamonds and straight lines. */
-  --leaf: oklch(0.62 0.11 175);
-  --leaf-deep: oklch(0.5 0.1 185);
+  --leaf: oklch(0.72 0.075 150);
+  --leaf-deep: oklch(0.56 0.08 158);
   --leaf-vein: oklch(0.86 0.13 90);
-  /* The pot is the salmon the diamond book is printed on, and its ornament
-     the same gold: the props and the books come out of one tin of paint. */
-  --pot: oklch(0.79 0.085 33);
-  --pot-shade: oklch(0.69 0.16 42);
+  /* An amber pot with a face on it, from the sheet of potted plants the user
+     sent; sage leaves rather than the saturated greens that were here. */
+  --pot: oklch(0.85 0.11 78);
+  --pot-shade: oklch(0.77 0.12 72);
+  /* The pot has a face. These are its cheeks. */
+  --pot-cheek: oklch(0.79 0.1 18);
   --bloom: oklch(0.68 0.11 265);
 
   /* The cat, in the reference's orange rather than a photographic ginger. */
@@ -225,11 +227,12 @@
   --deco-paper-edge: oklch(0.78 0.16 72);
   --deco-paper-ink: oklch(0.76 0.014 250);
 
-  --leaf: oklch(0.6 0.11 175);
-  --leaf-deep: oklch(0.49 0.1 185);
+  --leaf: oklch(0.69 0.075 150);
+  --leaf-deep: oklch(0.54 0.08 158);
   --leaf-vein: oklch(0.81 0.13 90);
-  --pot: oklch(0.74 0.085 33);
-  --pot-shade: oklch(0.66 0.16 42);
+  --pot: oklch(0.8 0.11 78);
+  --pot-shade: oklch(0.72 0.12 72);
+  --pot-cheek: oklch(0.75 0.1 18);
   --bloom: oklch(0.72 0.11 265);
 
   --cat: oklch(0.68 0.16 48);
