@@ -11,13 +11,71 @@
  * diamonds, straight lines.
  */
 
-export function ShelfPlant() {
+/**
+ * Куди веде кожна з трьох речей на полиці. Три посилання, бо три різні
+ * прохання: кіт — про притулок, книжки — про бібліотеки, рослина — про
+ * природу, яку ніхто не поливає.
+ */
+/** Притулок «Сіріус» — найбільший в Україні. */
+const SHELTER_URL = "https://dogcat.com.ua/adoption";
+/** Фонд «Бібліотечна країна»: книжкові пакети для бібліотек України. */
+export const LIBRARY_URL = "https://livelibrary.com.ua/books";
+/** Українська природоохоронна група. */
+const NATURE_URL = "https://uncg.org.ua/pidtrymaty/";
+
+export type ShelfLinkText = { caption: string; label: string };
+
+/**
+ * Те, що робить річ на полиці посиланням: наведення (або фокус) піднімає над
+ * нею підпис, а клік відкриває фонд у новій вкладці.
+ *
+ * Малюнок усередині лишається `pointer-events-none` і `aria-hidden` — курсор
+ * і читач екрана мають справу з посиланням, а не з десятком фігур у ньому.
+ */
+export function ShelfLink({
+  href,
+  caption,
+  label,
+  className,
+  children,
+}: ShelfLinkText & {
+  href: string;
+  /** Для речей, які ховаються на вузьких екранах. */
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className={`group focus-visible:ring-ring relative shrink-0 self-end rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${className ?? ""}`}
+    >
+      {/* Підпис тримається в межах полиці: вузький, у два рядки, над річчю. */}
+      <span className="bg-popover text-popover-foreground pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 w-40 -translate-x-1/2 rounded-md border px-2 py-1 text-center text-[11px] leading-snug opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        {caption}
+      </span>
+      {children}
+    </a>
+  );
+}
+
+/**
+ * Рослина в горщику. Без підпису вона просто стоїть на полиці; з підписом
+ * стає проханням за ту природу, за якою доглядати нікому.
+ */
+export function ShelfPlant({ text }: { text?: ShelfLinkText }) {
+  const svg = (
     <svg
       aria-hidden
       focusable="false"
       viewBox="0 0 64 88"
-      className="pointer-events-none h-[88px] w-16 shrink-0 self-end"
+      className={
+        text
+          ? "pointer-events-none block h-[88px] w-16"
+          : "pointer-events-none h-[88px] w-16 shrink-0 self-end"
+      }
     >
       {/* Sage leaves on thin stems, the way they are on the sheet of pots:
           two tall blades behind, three round ones in front. */}
@@ -65,15 +123,31 @@ export function ShelfPlant() {
       </g>
     </svg>
   );
+
+  return text ? (
+    <ShelfLink href={NATURE_URL} {...text}>
+      {svg}
+    </ShelfLink>
+  ) : (
+    svg
+  );
 }
 
-export function ShelfBookStack() {
-  return (
+/**
+ * Три книжки, що лежать плазом. Із підписом — прохання за бібліотеки, у яких
+ * полиці порожні, бо книжки тут уже прочитані.
+ */
+export function ShelfBookStack({ text }: { text?: ShelfLinkText }) {
+  const svg = (
     <svg
       aria-hidden
       focusable="false"
       viewBox="0 0 72 34"
-      className="pointer-events-none h-[34px] w-[72px] shrink-0 self-end"
+      className={
+        text
+          ? "pointer-events-none block h-[34px] w-[72px]"
+          : "pointer-events-none h-[34px] w-[72px] shrink-0 self-end"
+      }
     >
       <rect x="2" y="23" width="68" height="9" fill="var(--spine-7)" />
       <rect x="7" y="13" width="59" height="9" fill="var(--spine-2)" />
@@ -85,10 +159,15 @@ export function ShelfBookStack() {
       </g>
     </svg>
   );
-}
 
-/** Притулок «Сіріус» — найбільший в Україні. */
-const SHELTER_URL = "https://dogcat.com.ua/adoption";
+  return text ? (
+    <ShelfLink href={LIBRARY_URL} {...text}>
+      {svg}
+    </ShelfLink>
+  ) : (
+    svg
+  );
+}
 
 /**
  * Кіт, перемальований з фотографій, на яких він сидить на власній книжковій
@@ -100,26 +179,9 @@ const SHELTER_URL = "https://dogcat.com.ua/adoption";
  *
  * Він водночас і посилання: наведи — і він скаже, що комусь іще шукають дім.
  */
-export function ShelfCat({
-  caption,
-  label,
-}: {
-  caption: string;
-  label: string;
-}) {
+export function ShelfCat({ text }: { text: ShelfLinkText }) {
   return (
-    <a
-      href={SHELTER_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      className="group focus-visible:ring-ring relative shrink-0 self-end rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-    >
-      {/* Підпис тримається в межах полиці: вузький, у два рядки, над котом. */}
-      <span className="bg-popover text-popover-foreground pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 w-40 -translate-x-1/2 rounded-md border px-2 py-1 text-center text-[11px] leading-snug opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-        {caption}
-      </span>
-
+    <ShelfLink href={SHELTER_URL} {...text}>
       <svg
         aria-hidden
         focusable="false"
@@ -228,6 +290,6 @@ export function ShelfCat({
           <path d="M63 34 76 36" />
         </g>
       </svg>
-    </a>
+    </ShelfLink>
   );
 }

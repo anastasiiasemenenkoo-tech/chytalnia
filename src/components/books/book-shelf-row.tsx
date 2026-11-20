@@ -80,6 +80,21 @@ export function BookShelfRow({
     el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: "smooth" });
   }
 
+  // Кожна річ на полиці веде до свого фонду: кіт — до притулку, книжки — до
+  // бібліотек, рослина — до природоохоронців.
+  const catText = {
+    caption: dict.decor.catCaption,
+    label: dict.decor.catShelterLabel,
+  };
+  const stackText = {
+    caption: dict.decor.stackCaption,
+    label: dict.decor.stackLibraryLabel,
+  };
+  const plantText = {
+    caption: dict.decor.plantCaption,
+    label: dict.decor.plantNatureLabel,
+  };
+
   const lying =
     books.length >= LYING_THRESHOLD ? books.slice(-LYING_COUNT) : [];
   const standing =
@@ -140,14 +155,9 @@ export function BookShelfRow({
               <p className="text-muted-foreground mr-4 self-end pb-2 text-sm">
                 {dict.books.shelfEmpty}
               </p>
-              {decor === "plant" && <ShelfPlant />}
-              {decor === "stack" && <ShelfBookStack />}
-              {decor === "cat" && (
-                <ShelfCat
-                  caption={dict.decor.catCaption}
-                  label={dict.decor.catShelterLabel}
-                />
-              )}
+              {decor === "plant" && <ShelfPlant text={plantText} />}
+              {decor === "stack" && <ShelfBookStack text={stackText} />}
+              {decor === "cat" && <ShelfCat text={catText} />}
             </>
           ) : (
             <>
@@ -167,14 +177,9 @@ export function BookShelfRow({
                   ))}
                 </span>
               )}
-              {decor === "plant" && <ShelfPlant />}
-              {decor === "stack" && <ShelfBookStack />}
-              {decor === "cat" && (
-                <ShelfCat
-                  caption={dict.decor.catCaption}
-                  label={dict.decor.catShelterLabel}
-                />
-              )}
+              {decor === "plant" && <ShelfPlant text={plantText} />}
+              {decor === "stack" && <ShelfBookStack text={stackText} />}
+              {decor === "cat" && <ShelfCat text={catText} />}
             </>
           )}
         </div>

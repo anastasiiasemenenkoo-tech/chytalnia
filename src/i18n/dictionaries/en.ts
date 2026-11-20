@@ -6,6 +6,10 @@ export const en: Dictionary = {
   decor: {
     catCaption: "This one's home. Help another find theirs.",
     catShelterLabel: "Sirius animal shelter — find a cat a home",
+    stackCaption: "These are read. Somewhere the shelves are empty.",
+    stackLibraryLabel: "Library Country — books for Ukraine's libraries",
+    plantCaption: "This one is watered. Forests and steppes are not.",
+    plantNatureLabel: "Ukrainian Nature Conservation Group — support",
   },
   errors: {
     notFoundTitle: "That page isn't on the shelves",
@@ -326,6 +330,10 @@ export const en: Dictionary = {
     importSuccess: "Done: added {imported}, skipped {skipped}.",
     importNoFile: "Pick a CSV first — there's nothing to import without one.",
     importEmpty: "Not one shelved book in that file. Odd, but it happens.",
+    importWait:
+      "Looking for covers — on a long library this can take a minute. Keep the page open.",
+    importTooBig:
+      "That file is over 8 MB. Tell me about it and we will work out why.",
   },
   goal: {
     cardLabel: "Reading goal · {year}",

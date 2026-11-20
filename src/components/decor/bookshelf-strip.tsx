@@ -1,4 +1,9 @@
-import { ShelfCat, ShelfPlant } from "@/components/books/shelf-decor";
+import {
+  LIBRARY_URL,
+  ShelfCat,
+  ShelfLink,
+  ShelfPlant,
+} from "@/components/books/shelf-decor";
 import { Plank } from "@/components/decor/plank";
 import { SpineArt, type Design } from "@/components/decor/spine-art";
 import { getDictionary } from "@/i18n";
@@ -97,28 +102,43 @@ export async function BookshelfStrip() {
           ))}
         </span>
 
-        {/* Two that did not fit upright, laid across the short ones. */}
-        <span className="relative hidden shrink-0 items-end gap-px sm:flex">
-          <span className="absolute inset-x-0 -top-[13px] flex flex-col gap-px">
-            <span
-              className="h-[5px]"
-              style={{ backgroundColor: "var(--deco-blue)" }}
-            />
-            <span
-              className="h-[6px]"
-              style={{ backgroundColor: "var(--deco-vermilion)" }}
-            />
+        {/* Two that did not fit upright, laid across the short ones — and the
+            one thing on this shelf that asks for the shelves that are bare. */}
+        <ShelfLink
+          href={LIBRARY_URL}
+          caption={dict.decor.stackCaption}
+          label={dict.decor.stackLibraryLabel}
+          className="hidden sm:block"
+        >
+          <span className="relative flex items-end gap-px">
+            <span className="absolute inset-x-0 -top-[13px] flex flex-col gap-px">
+              <span
+                className="h-[5px]"
+                style={{ backgroundColor: "var(--deco-blue)" }}
+              />
+              <span
+                className="h-[6px]"
+                style={{ backgroundColor: "var(--deco-vermilion)" }}
+              />
+            </span>
+            {UNDER_FLATS.map((book, i) => (
+              <Spine key={`flat-${i}`} book={book} />
+            ))}
           </span>
-          {UNDER_FLATS.map((book, i) => (
-            <Spine key={`flat-${i}`} book={book} />
-          ))}
-        </span>
+        </ShelfLink>
 
         <ShelfCat
-          caption={dict.decor.catCaption}
-          label={dict.decor.catShelterLabel}
+          text={{
+            caption: dict.decor.catCaption,
+            label: dict.decor.catShelterLabel,
+          }}
         />
-        <ShelfPlant />
+        <ShelfPlant
+          text={{
+            caption: dict.decor.plantCaption,
+            label: dict.decor.plantNatureLabel,
+          }}
+        />
       </div>
       <Plank />
     </div>

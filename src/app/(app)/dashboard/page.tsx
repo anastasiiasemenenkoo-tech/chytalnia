@@ -85,7 +85,10 @@ export default async function DashboardPage() {
             label={dict.dashboard.bookClubsCard}
             count={clubCount}
           />
-          {/* Something has to share the shelf with them. */}
+          {/* Something has to share the shelf with them. Only the plant, and
+              only as a drawing: this row scrolls sideways, so it clips what
+              rises above it, and a caption here would be cut in half. The
+              plant asks for the forests on /books and on the way in. */}
           <ShelfPlant />
         </div>
         <Plank />
