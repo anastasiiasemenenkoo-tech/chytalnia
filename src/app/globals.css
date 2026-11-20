@@ -116,14 +116,17 @@
      `--spine-*` tokens have to carry a white title, which caps how light they
      can go; these carry nothing, so they can be as loud as a paperback table
      in a shop. */
-  --deco-1: oklch(0.6 0.19 25);
-  --deco-2: oklch(0.71 0.16 65);
-  --deco-3: oklch(0.78 0.15 95);
-  --deco-4: oklch(0.58 0.16 150);
-  --deco-5: oklch(0.62 0.13 205);
-  --deco-6: oklch(0.54 0.18 262);
-  --deco-7: oklch(0.52 0.19 305);
-  --deco-8: oklch(0.65 0.18 350);
+  --deco-salmon: oklch(0.79 0.085 33);
+  --deco-salmon-ink: oklch(0.69 0.16 42);
+  --deco-blue: oklch(0.53 0.1 252);
+  --deco-blue-ink: oklch(0.79 0.075 205);
+  --deco-yellow: oklch(0.86 0.13 90);
+  --deco-yellow-ink: oklch(0.71 0.16 52);
+  --deco-vermilion: oklch(0.65 0.18 36);
+  --deco-vermilion-ink: oklch(0.87 0.14 88);
+  --deco-paper: oklch(0.93 0.006 250);
+  --deco-paper-edge: oklch(0.81 0.16 72);
+  --deco-paper-ink: oklch(0.82 0.012 250);
 
   /* Foliage for the shelf decorations. */
   --leaf: oklch(0.6 0.12 155);
@@ -210,14 +213,17 @@
   --spine-seam: oklch(0 0 0 / 28%);
   --spine-foil: oklch(0.78 0.11 85);
 
-  --deco-1: oklch(0.58 0.18 25);
-  --deco-2: oklch(0.68 0.15 65);
-  --deco-3: oklch(0.74 0.14 95);
-  --deco-4: oklch(0.56 0.15 150);
-  --deco-5: oklch(0.6 0.12 205);
-  --deco-6: oklch(0.54 0.17 262);
-  --deco-7: oklch(0.52 0.18 305);
-  --deco-8: oklch(0.63 0.17 350);
+  --deco-salmon: oklch(0.74 0.085 33);
+  --deco-salmon-ink: oklch(0.66 0.16 42);
+  --deco-blue: oklch(0.5 0.1 252);
+  --deco-blue-ink: oklch(0.75 0.075 205);
+  --deco-yellow: oklch(0.81 0.13 90);
+  --deco-yellow-ink: oklch(0.68 0.16 52);
+  --deco-vermilion: oklch(0.62 0.18 36);
+  --deco-vermilion-ink: oklch(0.83 0.14 88);
+  --deco-paper: oklch(0.88 0.008 250);
+  --deco-paper-edge: oklch(0.78 0.16 72);
+  --deco-paper-ink: oklch(0.76 0.014 250);
 
   --leaf: oklch(0.63 0.12 155);
   --leaf-deep: oklch(0.52 0.11 160);
