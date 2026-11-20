@@ -128,22 +128,22 @@
   --deco-paper-edge: oklch(0.81 0.16 72);
   --deco-paper-ink: oklch(0.82 0.012 250);
 
-  /* Foliage for the shelf decorations. */
-  --leaf: oklch(0.6 0.12 155);
-  --leaf-deep: oklch(0.47 0.1 160);
-  --leaf-vein: oklch(0.42 0.08 158);
-  /* Terracotta, but far more saturated than the plank: the pot has to stand
-     on warm wood without melting into it, and chroma separates them where
-     lightness alone did not. */
-  --pot: oklch(0.68 0.15 45);
-  --pot-shade: oklch(0.58 0.14 42);
+  /* The shelf props are drawn in the same flat vocabulary as the books, out
+     of the same palette: no gradients, no shadows, ornament made of dots,
+     diamonds and straight lines. */
+  --leaf: oklch(0.62 0.11 175);
+  --leaf-deep: oklch(0.5 0.1 185);
+  --leaf-vein: oklch(0.86 0.13 90);
+  /* The pot is the salmon the diamond book is printed on, and its ornament
+     the same gold: the props and the books come out of one tin of paint. */
+  --pot: oklch(0.79 0.085 33);
+  --pot-shade: oklch(0.69 0.16 42);
   --bloom: oklch(0.68 0.11 265);
 
-  /* The shelf cat. Ginger, warmer than the plank so it doesn't disappear
-     into the wood it is sitting on. */
-  --cat: oklch(0.72 0.13 62);
-  --cat-shade: oklch(0.64 0.13 55);
-  --cat-stripe: oklch(0.56 0.14 45);
+  /* The cat, in the reference's orange rather than a photographic ginger. */
+  --cat: oklch(0.71 0.16 48);
+  --cat-shade: oklch(0.63 0.17 40);
+  --cat-stripe: oklch(0.6 0.18 36);
   /* Ginger-and-white: the face, chest, paws and tail tip are white, and the
      white needs a warm cast or it reads as a hole in the drawing. */
   --cat-white: oklch(0.96 0.014 80);
@@ -225,16 +225,16 @@
   --deco-paper-edge: oklch(0.78 0.16 72);
   --deco-paper-ink: oklch(0.76 0.014 250);
 
-  --leaf: oklch(0.63 0.12 155);
-  --leaf-deep: oklch(0.52 0.11 160);
-  --leaf-vein: oklch(0.47 0.09 158);
-  --pot: oklch(0.64 0.14 45);
-  --pot-shade: oklch(0.55 0.13 42);
+  --leaf: oklch(0.6 0.11 175);
+  --leaf-deep: oklch(0.49 0.1 185);
+  --leaf-vein: oklch(0.81 0.13 90);
+  --pot: oklch(0.74 0.085 33);
+  --pot-shade: oklch(0.66 0.16 42);
   --bloom: oklch(0.72 0.11 265);
 
-  --cat: oklch(0.68 0.13 62);
-  --cat-shade: oklch(0.6 0.13 55);
-  --cat-stripe: oklch(0.52 0.13 45);
+  --cat: oklch(0.68 0.16 48);
+  --cat-shade: oklch(0.6 0.17 40);
+  --cat-stripe: oklch(0.57 0.18 36);
   --cat-white: oklch(0.9 0.016 80);
   --cat-white-shade: oklch(0.82 0.022 78);
   --cat-nose: oklch(0.75 0.09 18);

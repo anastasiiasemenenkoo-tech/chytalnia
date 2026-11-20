@@ -1,8 +1,4 @@
-import {
-  ShelfBookStack,
-  ShelfCat,
-  ShelfPlant,
-} from "@/components/books/shelf-decor";
+import { ShelfCat, ShelfPlant } from "@/components/books/shelf-decor";
 import { Plank } from "@/components/decor/plank";
 import { SpineArt, type Design } from "@/components/decor/spine-art";
 
@@ -111,11 +107,6 @@ export function BookshelfStrip() {
           ))}
         </span>
 
-        {/* The stack is the first thing to go when the shelf runs out of
-            room — the cat is not negotiable. */}
-        <span className="ml-2 hidden shrink-0 items-end sm:flex">
-          <ShelfBookStack />
-        </span>
         <ShelfCat />
         <ShelfPlant />
       </div>
