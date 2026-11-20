@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getDictionary } from "@/i18n";
-import { searchOpenLibrary } from "@/lib/openlibrary";
+import { interpolate } from "@/i18n/interpolate";
+import { findBooks } from "@/lib/openlibrary";
 
 export default async function BookSearchPage({
   searchParams,
@@ -15,7 +16,9 @@ export default async function BookSearchPage({
   const dict = await getDictionary();
   const { q } = await searchParams;
   const query = (q ?? "").trim();
-  const hits = query ? await searchOpenLibrary(query) : [];
+  const { hits, searchedAs } = query
+    ? await findBooks(query)
+    : { hits: [], searchedAs: null };
 
   return (
     <div className="space-y-6">
@@ -47,7 +50,16 @@ export default async function BookSearchPage({
       </Card>
 
       {query ? (
-        <SearchResults hits={hits} />
+        <div className="space-y-4">
+          {/* Said out loud: these books are filed under another name, and the
+              reader should know which one before adding them to a shelf. */}
+          {searchedAs ? (
+            <p className="text-muted-foreground text-sm">
+              {interpolate(dict.books.searchedAs, { query: searchedAs })}
+            </p>
+          ) : null}
+          <SearchResults hits={hits} />
+        </div>
       ) : (
         <Card>
           <CardContent className="text-muted-foreground py-12 text-center text-sm">

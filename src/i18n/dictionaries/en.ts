@@ -249,6 +249,8 @@ export const en: Dictionary = {
     search: "Search",
     typeToBegin: "A title, an author, a few letters — start anywhere.",
     noResults: "Silence in return. Try another title or author.",
+    searchedAs:
+      'Nothing came back in Ukrainian, so this is a search for "{query}".',
     add: "Add",
     addedTo: 'Added to "{shelf}"',
     movedTo: 'Moved to "{shelf}"',

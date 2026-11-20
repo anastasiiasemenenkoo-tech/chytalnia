@@ -6,10 +6,7 @@ import { randomUUID } from "node:crypto";
 import { settleDuelsForFinishedBook } from "@/actions/duels";
 import { getDictionary } from "@/i18n";
 import { prisma } from "@/lib/db";
-import {
-  searchOpenLibrary,
-  type OpenLibraryHit,
-} from "@/lib/openlibrary";
+import { findBooks, type OpenLibraryHit } from "@/lib/openlibrary";
 import { requireCurrentUser } from "@/lib/session";
 import { upsertUserBook } from "@/lib/user-books";
 import {
@@ -33,7 +30,10 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
  */
 export async function searchBooks(query: string): Promise<OpenLibraryHit[]> {
   await requireCurrentUser();
-  return searchOpenLibrary(query);
+  // The dialog has no room to explain that a Ukrainian query was translated,
+  // so it gets the books and not the name they were found under.
+  const { hits } = await findBooks(query);
+  return hits;
 }
 
 export async function addBookToShelf(formData: FormData): Promise<ActionResult> {
