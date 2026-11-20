@@ -33,10 +33,11 @@ const LYING_COUNT = 2;
 
 /**
  * An empty row still has to reserve height, but reserving a spine's worth of
- * it leaves a hole the size of a book you don't own. Tall enough for the
- * plant that keeps the shelf from looking abandoned, and no taller.
+ * it leaves a hole the size of a book you don't own. Tall enough for the cat
+ * — the tallest of the three props — plus the caption that rises above it on
+ * hover, since the row scrolls sideways and therefore clips what overflows.
  */
-const EMPTY_SHELF_HEIGHT = 96;
+const EMPTY_SHELF_HEIGHT = 128;
 
 export function BookShelfRow({
   shelf,
@@ -141,7 +142,12 @@ export function BookShelfRow({
               </p>
               {decor === "plant" && <ShelfPlant />}
               {decor === "stack" && <ShelfBookStack />}
-              {decor === "cat" && <ShelfCat />}
+              {decor === "cat" && (
+                <ShelfCat
+                  caption={dict.decor.catCaption}
+                  label={dict.decor.catShelterLabel}
+                />
+              )}
             </>
           ) : (
             <>
@@ -163,7 +169,12 @@ export function BookShelfRow({
               )}
               {decor === "plant" && <ShelfPlant />}
               {decor === "stack" && <ShelfBookStack />}
-              {decor === "cat" && <ShelfCat />}
+              {decor === "cat" && (
+                <ShelfCat
+                  caption={dict.decor.catCaption}
+                  label={dict.decor.catShelterLabel}
+                />
+              )}
             </>
           )}
         </div>

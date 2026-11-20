@@ -1,6 +1,7 @@
 import { ShelfCat, ShelfPlant } from "@/components/books/shelf-decor";
 import { Plank } from "@/components/decor/plank";
 import { SpineArt, type Design } from "@/components/decor/spine-art";
+import { getDictionary } from "@/i18n";
 
 /**
  * A shelf with nobody's books on it — the piece of furniture the sign-in card
@@ -76,9 +77,15 @@ function Spine({ book }: { book: Book }) {
   );
 }
 
-export function BookshelfStrip() {
+export async function BookshelfStrip() {
+  const dict = await getDictionary();
+  // overflow-x-clip, not overflow-hidden: the books still have to be cut off
+  // left and right, but the cat's caption rises above the shelf, and nothing
+  // may be cut off vertically. The strip is no longer aria-hidden either —
+  // the cat inside it is a real link, and a focusable link inside an
+  // aria-hidden subtree is a trap. Everything decorative hides itself.
   return (
-    <div aria-hidden className="w-full overflow-hidden">
+    <div className="w-full overflow-x-clip">
       <div className="flex flex-nowrap items-end justify-center gap-px px-2 sm:px-4">
         {CORE.map((book, i) => (
           <Spine key={`core-${i}`} book={book} />
@@ -107,7 +114,10 @@ export function BookshelfStrip() {
           ))}
         </span>
 
-        <ShelfCat />
+        <ShelfCat
+          caption={dict.decor.catCaption}
+          label={dict.decor.catShelterLabel}
+        />
         <ShelfPlant />
       </div>
       <Plank />

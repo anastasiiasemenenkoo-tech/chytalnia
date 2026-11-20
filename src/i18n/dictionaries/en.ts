@@ -3,6 +3,20 @@ import type { Dictionary } from "@/i18n/dictionaries/uk";
 export const en: Dictionary = {
   brand: "Chytal'nia",
   tagline: "your reading space",
+  decor: {
+    catCaption: "This one's home. Help another find theirs.",
+    catShelterLabel: "Sirius animal shelter — find a cat a home",
+  },
+  errors: {
+    notFoundTitle: "That page isn't on the shelves",
+    notFoundBody: "It may have been moved. Or it was never here at all.",
+    notFoundAction: "Back to the start",
+    errorTitle: "Something went wrong",
+    errorBody:
+      "The page didn't finish loading. Try again — that is often enough.",
+    errorAction: "Try again",
+    errorDigest: "Error code: {digest}",
+  },
   common: {
     save: "Save",
     saving: "Saving…",

@@ -87,124 +87,147 @@ export function ShelfBookStack() {
   );
 }
 
+/** Притулок «Сіріус» — найбільший в Україні. */
+const SHELTER_URL = "https://dogcat.com.ua/adoption";
+
 /**
- * The cat, lying along the shelf with its front paws stretched out and its
- * tail curled round behind — copied from the close-up the user sent.
+ * Кіт, перемальований з фотографій, на яких він сидить на власній книжковій
+ * полиці: рудий зі спини, біла манишка й лапи, білий клин між очима,
+ * бурштинові очі й руда пляма на грудях, яку не сплутаєш.
  *
- * The body is one mass and the head another sitting in front of it, which is
- * how that drawing is built; forcing them into a single outline was what made
- * the earlier attempts look like a loaf. The markings are soft blotches, not
- * ruled stripes, and the eyes are big white discs with a dark dot in each.
+ * Пласкими плямами, без градієнтів і тіней — у тому ж стилі, що й обкладинки
+ * поруч. Не портрет, а той самий кіт, намальований цією полицею.
+ *
+ * Він водночас і посилання: наведи — і він скаже, що комусь іще шукають дім.
  */
-export function ShelfCat() {
+export function ShelfCat({
+  caption,
+  label,
+}: {
+  caption: string;
+  label: string;
+}) {
   return (
-    <svg
-      aria-hidden
-      focusable="false"
-      viewBox="0 0 96 54"
-      className="pointer-events-none h-[54px] w-[96px] shrink-0 self-end"
+    <a
+      href={SHELTER_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="group focus-visible:ring-ring relative shrink-0 self-end rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
-      {/* Tail, curling off to the right behind the haunch. */}
-      <path
-        d="M76 50C90 52 94 42 87 35"
-        fill="none"
-        stroke="var(--cat)"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      <g
-        stroke="var(--cat-stripe)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        fill="none"
-      >
-        <path d="M86 51c.5-1.6.6-3 .4-4.4" />
-        <path d="M92 44c-1.4-.9-2.4-1.8-3.2-3" />
-      </g>
+      {/* Підпис тримається в межах полиці: вузький, у два рядки, над котом. */}
+      <span className="bg-popover text-popover-foreground pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 w-40 -translate-x-1/2 rounded-md border px-2 py-1 text-center text-[11px] leading-snug opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        {caption}
+      </span>
 
-      {/* The body: one soft mass, higher at the haunch. */}
-      <path
-        d="M38 52C29 46 29 31 42 25 56 18 72 21 80 30 87 38 85 52 77 52z"
-        fill="var(--cat)"
-      />
-      {/* Blotches rather than stripes — the reference is painted, not ruled. */}
-      <g fill="var(--cat-stripe)">
-        <ellipse
-          cx="52"
-          cy="28"
-          rx="7"
-          ry="3.6"
-          transform="rotate(-14 52 28)"
+      <svg
+        aria-hidden
+        focusable="false"
+        viewBox="0 0 82 80"
+        className="pointer-events-none block h-[80px] w-[82px]"
+      >
+        {/* Хвіст лежить уздовж полиці. Темніший за тіло навмисне: однаковим
+            рудим він просто зливався б із крупом в одну пляму. */}
+        <path
+          d="M28 74C19 79 10 79 3 76"
+          fill="none"
+          stroke="var(--cat-shade)"
+          strokeWidth="6.5"
+          strokeLinecap="round"
         />
-        <ellipse cx="66" cy="26" rx="6" ry="3.2" transform="rotate(-8 66 26)" />
-        <ellipse
-          cx="72"
-          cy="38"
-          rx="6.5"
-          ry="3.4"
-          transform="rotate(16 72 38)"
+
+        {/* Тіло: сидить, круп ліворуч, плечі праворуч. */}
+        <path
+          d="M26 78C16 78 13 68 16 57 19 44 28 34 42 31 56 28 68 34 71 47 74 59 71 72 66 78z"
+          fill="var(--cat)"
         />
-        <ellipse cx="56" cy="41" rx="6" ry="3.2" transform="rotate(10 56 41)" />
-      </g>
+        {/* Мармурові смуги на крупі — м'які дуги, не лінійка. */}
+        <g
+          stroke="var(--cat-stripe)"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          fill="none"
+        >
+          <path d="M19 50c6-4 12-3 16 2" />
+          <path d="M20 60c6-4 12-3 16 2" />
+          <path d="M22 69c6-4 11-3 14 1" />
+        </g>
 
-      {/* Front legs stretched forward, and the chest: all white. */}
-      <path
-        d="M16 52C9 52 5 50 5 47.5 5 45 9 43 16 43h22c4 0 7 2.2 7 4.5S42 52 38 52z"
-        fill="var(--cat-white)"
-      />
-      <path
-        d="M15 44.5V52"
-        stroke="var(--cat-white-shade)"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        fill="none"
-      />
+        {/* Біла манишка й передні лапи. */}
+        <path
+          d="M54 33c10 0 16 11 16 25v16c0 3-2 4-5 4H45c-3 0-4-1-4-4V48c0-9 5-15 13-15z"
+          fill="var(--cat-white)"
+        />
+        <g fill="var(--cat-white)">
+          <ellipse cx="47.5" cy="75.5" rx="7.5" ry="3.5" />
+          <ellipse cx="63" cy="75.5" rx="7.5" ry="3.5" />
+        </g>
+        <g
+          stroke="var(--cat-white-shade)"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          fill="none"
+        >
+          <path d="M55.5 56v22" />
+          <path d="M44 74h7" />
+          <path d="M60 74h7" />
+        </g>
+        {/* Руда пляма на грудях — головна прикмета цього кота. */}
+        <path
+          d="M49 51c4-3 11-2 15 1-3 3-11 4-15-1z"
+          fill="var(--cat)"
+        />
 
-      {/* The head, in front of the body, ears part of its outline. */}
-      <path
-        d="M11 31C11 24.5 13.5 19.5 17.5 17L14.5 4 26.5 12.5C29.5 12 33 12.3 36 13.8L41.5 3 41 19.6C42.5 23 43 27 43 31 43 39.5 36 45 27 45 18 45 11 39.5 11 31z"
-        fill="var(--cat)"
-      />
-      <g fill="var(--cat-nose)">
-        <path d="M17.5 14.5 16.5 8l6.5 4.6z" />
-        <path d="M37 15.5 40 9l-.3 7z" />
-      </g>
-      <g fill="var(--cat-stripe)">
-        <ellipse cx="20" cy="20" rx="4" ry="2" transform="rotate(-18 20 20)" />
-        <ellipse cx="34" cy="20" rx="4" ry="2" transform="rotate(18 34 20)" />
-      </g>
+        {/* Вуха за головою, щоб їхні основи ховалися під нею. */}
+        <g fill="var(--cat)">
+          <path d="M37 23 33 1l22 11z" />
+          <path d="M75 23 79 1 57 12z" />
+        </g>
+        <g fill="var(--cat-nose)">
+          <path d="M40 19 37.5 6 50 12.5z" />
+          <path d="M72 19 74.5 6 62 12.5z" />
+        </g>
 
-      {/* The eyes that make the whole sheet read as cats. */}
-      <g>
-        <ellipse cx="21" cy="28" rx="5.6" ry="6" fill="var(--cat-white)" />
-        <ellipse cx="34" cy="28" rx="5.6" ry="6" fill="var(--cat-white)" />
-        <circle cx="21.4" cy="28.4" r="2.5" fill="var(--cat-ink)" />
-        <circle cx="34.4" cy="28.4" r="2.5" fill="var(--cat-ink)" />
-      </g>
+        {/* Голова. */}
+        <ellipse cx="56" cy="24" rx="21" ry="18" fill="var(--cat)" />
+        {/* Білий клин між очима, що переходить у білу мордочку. */}
+        <path d="M56 9 50 27h12z" fill="var(--cat-white)" />
+        <ellipse cx="56" cy="31" rx="12" ry="9" fill="var(--cat-white)" />
 
-      {/* Muzzle. */}
-      <path d="M25 35h5l-2.5 2.6z" fill="var(--cat-nose)" />
-      <g
-        stroke="var(--cat-ink)"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        fill="none"
-      >
-        <path d="M27.5 37.6v1.8" />
-        <path d="M27.5 39.4c-1.3 1.2-2.8 1-3.8 0" />
-        <path d="M27.5 39.4c1.3 1.2 2.8 1 3.8 0" />
-      </g>
-      <g
-        stroke="var(--cat-white)"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        fill="none"
-      >
-        <path d="M21 36 11 33.5" />
-        <path d="M21 38.5 11 39" />
-        <path d="M34 36 44 33.5" />
-        <path d="M34 38.5 44 39" />
-      </g>
-    </svg>
+        {/* Очі — бурштинові, як на фотографії. */}
+        <g>
+          <ellipse cx="46" cy="24" rx="4.2" ry="4.6" fill="var(--cat-eye)" />
+          <ellipse cx="66" cy="24" rx="4.2" ry="4.6" fill="var(--cat-eye)" />
+          <ellipse cx="46" cy="24" rx="2" ry="2.8" fill="var(--cat-ink)" />
+          <ellipse cx="66" cy="24" rx="2" ry="2.8" fill="var(--cat-ink)" />
+          <circle cx="47.4" cy="22.4" r="0.9" fill="var(--cat-white)" />
+          <circle cx="67.4" cy="22.4" r="0.9" fill="var(--cat-white)" />
+        </g>
+
+        {/* Ніс і рот. */}
+        <path d="M53 28h6l-3 3.4z" fill="var(--cat-nose)" />
+        <g
+          stroke="var(--cat-ink)"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          fill="none"
+        >
+          <path d="M56 31.4v2.2" />
+          <path d="M56 33.6c-1.4 1.4-3.2 1.2-4.2 0" />
+          <path d="M56 33.6c1.4 1.4 3.2 1.2 4.2 0" />
+        </g>
+        <g
+          stroke="var(--cat-white)"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          fill="none"
+        >
+          <path d="M49 31 36 28" />
+          <path d="M49 34 36 36" />
+          <path d="M63 31 76 28" />
+          <path d="M63 34 76 36" />
+        </g>
+      </svg>
+    </a>
   );
 }
