@@ -85,12 +85,14 @@ export function ShelfBookStack() {
 
 /**
  * The cat, asleep on the shelf: curled into a loaf with its tail round its
- * front and its chin on it. Every library has one.
+ * front. Every library has one.
  *
- * Drawn the way the covers are — one flat orange shape, one flat white one,
- * and the markings printed on top as plain straight strokes. The earlier
- * version had a shaded far side and a soft shadow under it, which is exactly
- * what the books do not have.
+ * **One silhouette.** The earlier versions drew a body, then stuck a circle on
+ * it for a head and two spikes on that for ears, and the joins showed: at this
+ * size it read as parts rather than a cat. Here the back, the head and both
+ * ears are a single outline, and everything else — the white, the stripes, the
+ * shut eyes — is printed on top of it, which is exactly how the covers are
+ * built.
  */
 export function ShelfCat() {
   return (
@@ -100,59 +102,59 @@ export function ShelfCat() {
       viewBox="0 0 78 46"
       className="pointer-events-none h-[46px] w-[78px] shrink-0 self-end"
     >
-      {/* Tail: one flat band, with the white tip laid over its end. */}
+      {/* Back, head and both ears in one outline. */}
       <path
-        d="M12 42C22 48 40 48 52 42"
-        fill="none"
-        stroke="var(--cat)"
-        strokeWidth="7"
-        strokeLinecap="butt"
-      />
-      <path
-        d="M12 42c3 1.8 6.5 3 10 3.6"
-        fill="none"
-        stroke="var(--cat-white)"
-        strokeWidth="7"
-        strokeLinecap="butt"
-      />
-
-      {/* The back: one arc from the tucked haunches up and over to the head. */}
-      <path
-        d="M10 44C3 44 2 33 8 25 16 14 38 10 54 16 67 21 72 32 70 44z"
+        d="M6 44C1 35 3 25 12 19 23 11 37 9 46 13L48 4 56 12C59 11 63 11 66 13L71 4 73 17C76 24 75 33 72 38 70 42 67 44 63 44z"
         fill="var(--cat)"
       />
-      {/* Markings: straight strokes, the same hand that ruled the covers. */}
-      <g stroke="var(--cat-stripe)" strokeWidth="2.6" strokeLinecap="butt">
-        <path d="M21 17v9" />
-        <path d="M30 14v10" />
-        <path d="M39 14v10" />
-      </g>
 
-      {/* Chest and front paws. */}
-      <path d="M41 44c0-6 5-11 11.5-11S64 38 64 44z" fill="var(--cat-white)" />
+      {/* Muzzle and chest: one white shape, not a face patch plus a bib. */}
+      <ellipse cx="60" cy="34" rx="12.5" ry="10" fill="var(--cat-white)" />
 
-      <g fill="var(--cat)">
-        <path d="M47 22 44 10l11 7z" />
-        <path d="M68 24 71 13l-9 5z" />
-      </g>
+      {/* Inner ears. */}
       <g fill="var(--cat-nose)">
-        <path d="M48 20.5 46.5 13l6 4z" />
-        <path d="M67 21.5 68.5 15l-5 3z" />
+        <path d="M49 12 48.5 7 53 11z" />
+        <path d="M70 12 70.5 7 66 11z" />
       </g>
 
-      {/* The face is white; the orange cap sits on top of it. */}
-      <circle cx="58" cy="30" r="13" fill="var(--cat-white)" />
-      <path
-        d="M45.4 27.4a13 13 0 0 1 25.2 0c-3.6-1.6-8.4-2.6-12.6-2.6s-9 1-12.6 2.6z"
-        fill="var(--cat)"
-      />
-
-      {/* Asleep: two shut eyes ruled flat, and a diamond for a nose. */}
-      <g stroke="var(--cat-ink)" strokeWidth="1.6" strokeLinecap="butt">
-        <path d="M52 31h6" />
-        <path d="M63 30.5h4" />
+      {/* Markings, ruled straight like the lines printed on a cover. */}
+      <g stroke="var(--cat-stripe)" strokeWidth="2.6" strokeLinecap="butt">
+        <path d="M20 17v8" />
+        <path d="M29 14v9" />
+        <path d="M38 13v9" />
       </g>
-      <path d="M62 34 64 36 62 38 60 36z" fill="var(--cat-nose)" />
+
+      {/* Asleep: two shut eyes curved the way a contented cat's are. */}
+      <g
+        fill="none"
+        stroke="var(--cat-ink)"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      >
+        <path d="M52 31q3.5 3 7 0" />
+        <path d="M63 30.5q3 2.6 6 0" />
+      </g>
+      <path d="M57.5 36h5l-2.5 3z" fill="var(--cat-nose)" />
+
+      {/* The tail comes round the front, so it goes on last. Same orange as
+          the body, so it needs its own edge to be a tail and not a smudge. */}
+      <g fill="none" strokeLinecap="round">
+        <path
+          d="M12 38C22 43 38 43 50 38"
+          stroke="var(--cat-stripe)"
+          strokeWidth="7"
+        />
+        <path
+          d="M12 38C22 43 38 43 50 38"
+          stroke="var(--cat)"
+          strokeWidth="5"
+        />
+        <path
+          d="M12 38c3 1.8 6 3 9 3.7"
+          stroke="var(--cat-white)"
+          strokeWidth="5"
+        />
+      </g>
     </svg>
   );
 }
