@@ -8,6 +8,7 @@ import {
   Library,
   type LucideIcon,
   Search,
+  Sparkles,
   Swords,
   UserRound,
   Users,
@@ -25,7 +26,8 @@ type NavItem = {
     | "findBooks"
     | "clubs"
     | "readers"
-    | "duels";
+    | "duels"
+    | "year";
   icon: LucideIcon;
 };
 
@@ -36,6 +38,7 @@ export const NAV: NavItem[] = [
   { href: "/clubs", labelKey: "clubs", icon: Users },
   { href: "/readers", labelKey: "readers", icon: UserRound },
   { href: "/duels", labelKey: "duels", icon: Swords },
+  { href: "/year", labelKey: "year", icon: Sparkles },
 ];
 
 /**
