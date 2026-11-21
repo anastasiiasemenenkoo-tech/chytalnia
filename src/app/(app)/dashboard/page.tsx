@@ -5,6 +5,7 @@ import { BookCard } from "@/components/books/book-card";
 import { ShelfPlant } from "@/components/books/shelf-decor";
 import { Plank } from "@/components/decor/plank";
 import { YearlyGoalCard } from "@/components/dashboard/yearly-goal-card";
+import { InstallHint } from "@/components/shell/install-hint";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDictionary } from "@/i18n";
@@ -55,6 +56,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <InstallHint />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
           {dict.dashboard.title}

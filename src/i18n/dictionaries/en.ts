@@ -82,6 +82,10 @@ export const en: Dictionary = {
     goalNone: "You set no goal this year.",
     setAside: "And {count} more are waiting on «Недочитано».",
   },
+  install: {
+    hint: "Читальня can live on your home screen like an app: the Share button at the bottom of Safari → «Add to Home Screen».",
+    dismiss: "Hide this hint",
+  },
   errors: {
     notFoundTitle: "That page isn't on the shelves",
     notFoundBody: "It may have been moved. Or it was never here at all.",
