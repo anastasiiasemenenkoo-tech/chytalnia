@@ -49,6 +49,26 @@ model User {
 
   following Follow[] @relation("Follower")
   followers Follow[] @relation("Following")
+
+  yearShares YearShare[]
+}
+
+/// A reader's year in review, opened to anyone holding the link.
+///
+/// A row exists only once the reader asks for one, and deleting it kills the
+/// link — which is the whole reason this is a table and not a signature over
+/// the user id: a share you cannot take back is not a share, it is a leak.
+model YearShare {
+  id        String   @id @default(cuid())
+  userId    String
+  year      Int
+  /// Random, not derived: the link must be unguessable from a user id.
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year])
 }
 
 /// One-way, no approval. Two of these pointing at each other is what the app

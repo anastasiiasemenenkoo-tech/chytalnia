@@ -157,3 +157,31 @@ export async function yearInReview(
     goal: userRecord?.yearlyGoal ?? null,
   };
 }
+
+/** What a shared link opens: whose year it is, and the year itself. */
+export type SharedYear = { reader: string | null; review: YearInReview };
+
+/**
+ * Look up a year by the token in a shared link.
+ *
+ * Returns null for a token that was never issued or has since been revoked,
+ * and the page turns that into a 404 — a link somebody took back should not
+ * announce that it once existed.
+ */
+export async function yearByShareToken(
+  token: string,
+): Promise<SharedYear | null> {
+  const trimmed = token.trim();
+  if (!trimmed || trimmed.length > 64) return null;
+
+  const share = await prisma.yearShare.findUnique({
+    where: { token: trimmed },
+    select: { userId: true, year: true, user: { select: { name: true } } },
+  });
+  if (!share) return null;
+
+  return {
+    reader: share.user.name,
+    review: await yearInReview(share.userId, share.year),
+  };
+}

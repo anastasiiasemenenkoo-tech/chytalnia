@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { ReadingMonths } from "@/components/year/reading-months";
+import { ShareLinkCard } from "@/components/year/share-link-card";
 import { ShareYearButton } from "@/components/year/share-year-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDictionary, getLocale } from "@/i18n";
 import { interpolate } from "@/i18n/interpolate";
 import { plural } from "@/i18n/plural";
+import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { yearInReview } from "@/lib/year-in-review";
 import { cn } from "@/lib/utils";
@@ -16,7 +18,13 @@ export default async function YearPage() {
   const user = await requireCurrentUser();
   const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const year = new Date().getFullYear();
-  const review = await yearInReview(user.id, year);
+  const [review, share] = await Promise.all([
+    yearInReview(user.id, year),
+    prisma.yearShare.findUnique({
+      where: { userId_year: { userId: user.id, year } },
+      select: { token: true },
+    }),
+  ]);
 
   const tag = locale === "uk" ? "uk-UA" : "en-US";
   const number = new Intl.NumberFormat(tag);
@@ -217,6 +225,10 @@ export default async function YearPage() {
           </Section>
         ) : null}
       </div>
+
+      <Section title={dict.year.shareLinkTitle}>
+        <ShareLinkCard year={year} initialToken={share?.token ?? null} />
+      </Section>
 
       <Section title={dict.year.goalTitle}>
         <p className="text-sm">
