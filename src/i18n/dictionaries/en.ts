@@ -17,6 +17,11 @@ export const en: Dictionary = {
     subtitle: "Your year, counted in pages.",
     empty: "No finished book this year yet. The year is not over, though.",
     emptyAction: "Find a book",
+    share: "Share",
+    sharePreparing: "Drawing the card…",
+    shareText: "My reading year {year}, from Читальня",
+    shareSaved: "Card saved.",
+    shareFailed: "The card did not come out. Try again.",
     booksRead: {
       one: "{count} book",
       few: "{count} books",

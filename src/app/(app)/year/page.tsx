@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { ReadingMonths } from "@/components/year/reading-months";
+import { ShareYearButton } from "@/components/year/share-year-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDictionary, getLocale } from "@/i18n";
@@ -27,11 +28,14 @@ export default async function YearPage() {
   );
 
   const heading = (
-    <div>
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">
-        {interpolate(dict.year.title, { year })}
-      </h1>
-      <p className="text-muted-foreground text-sm">{dict.year.subtitle}</p>
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight">
+          {interpolate(dict.year.title, { year })}
+        </h1>
+        <p className="text-muted-foreground text-sm">{dict.year.subtitle}</p>
+      </div>
+      {review.finished > 0 ? <ShareYearButton year={year} /> : null}
     </div>
   );
 

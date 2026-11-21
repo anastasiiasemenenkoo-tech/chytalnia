@@ -28,6 +28,11 @@ export const uk = {
     empty:
       "Цього року ще жодної дочитаної книжки. Рік, утім, ще не скінчився.",
     emptyAction: "Знайти книгу",
+    share: "Поділитися",
+    sharePreparing: "Малюємо картку…",
+    shareText: "Мій читацький {year} у Читальні",
+    shareSaved: "Картку збережено.",
+    shareFailed: "Картка не намалювалася. Спробуй ще раз.",
     booksRead: {
       one: "{count} книжка",
       few: "{count} книжки",
