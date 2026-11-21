@@ -1,3 +1,7 @@
+import { Heart } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
 /**
  * Purely decorative props that share the shelf with the books — a plant, a
  * small stack of books lying flat, and the cat.
@@ -56,7 +60,12 @@ export function ShelfLink({
       <span className="bg-popover text-popover-foreground pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 w-40 -translate-x-1/2 rounded-md border px-2 py-1 text-center text-[11px] leading-snug opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
         {caption}
       </span>
-      {children}
+      {/* Нічого не підказує, що малюнок — посилання, поки на нього не
+          наведеш. Тож він трохи підводиться над полицею ще до того, як
+          з'явиться підпис. */}
+      <span className="block transition-transform duration-200 group-hover:-translate-y-1 group-focus-visible:-translate-y-1">
+        {children}
+      </span>
     </a>
   );
 }
@@ -291,5 +300,32 @@ export function ShelfCat({ text }: { text: ShelfLinkText }) {
         </g>
       </svg>
     </ShelfLink>
+  );
+}
+
+/**
+ * Підказка під полицею. Без неї три посилання — просто малюнки: ніхто не
+ * водить мишею по декораціях навмання, а на телефоні наведення немає зовсім,
+ * тож дотик до кота відкривав би притулок без попередження.
+ */
+export function ShelfHint({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  return (
+    <p
+      className={cn(
+        "text-muted-foreground/80 text-center text-xs",
+        className,
+      )}
+    >
+      {/* Інлайн, а не флексом: на телефоні підказка йде у два рядки, і
+          сердечко збоку від абзацу висить само по собі. */}
+      <Heart className="mr-1.5 inline h-3 w-3 -translate-y-px" aria-hidden />
+      {text}
+    </p>
   );
 }

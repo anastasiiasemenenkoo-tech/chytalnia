@@ -3,6 +3,7 @@ import { Search, Upload } from "lucide-react";
 
 import { BookCard } from "@/components/books/book-card";
 import { BookShelfRow } from "@/components/books/book-shelf-row";
+import { ShelfHint } from "@/components/books/shelf-decor";
 import { ManualEntryDialog } from "@/components/books/manual-entry-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -126,6 +127,10 @@ export default async function BooksPage({
         </Card>
       ) : !activeShelf ? (
         <div className="space-y-8">
+          {/* Над полицями, а не під ними: чотири ряди книжок — це висота, до
+              кінця якої ніхто не догортає, щоб дізнатися, що з полицею можна
+              щось зробити. */}
+          <ShelfHint text={dict.decor.hint} />
           {SHELF_ORDER.map((shelf, i) => (
             <BookShelfRow
               key={shelf}

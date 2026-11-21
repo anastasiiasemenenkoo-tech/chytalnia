@@ -1,6 +1,7 @@
 import {
   LIBRARY_URL,
   ShelfCat,
+  ShelfHint,
   ShelfLink,
   ShelfPlant,
 } from "@/components/books/shelf-decor";
@@ -108,7 +109,6 @@ export async function BookshelfStrip() {
           href={LIBRARY_URL}
           caption={dict.decor.stackCaption}
           label={dict.decor.stackLibraryLabel}
-          className="hidden sm:block"
         >
           <span className="relative flex items-end gap-px">
             <span className="absolute inset-x-0 -top-[13px] flex flex-col gap-px">
@@ -141,6 +141,7 @@ export async function BookshelfStrip() {
         />
       </div>
       <Plank />
+      <ShelfHint text={dict.decor.hint} className="mt-3 px-4" />
     </div>
   );
 }
