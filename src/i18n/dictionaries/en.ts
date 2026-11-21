@@ -343,6 +343,10 @@ export const en: Dictionary = {
     search: "Search",
     typeToBegin: "A title, an author, a few letters — start anywhere.",
     noResults: "Silence in return. Try another title or author.",
+    noResultsManual:
+      "Open Library is an English-language catalogue and holds little Ukrainian publishing. If the book is not there, add it by hand — it reaches a shelf just the same.",
+    catalogueLanguage:
+      "Open Library files books under their original titles, so translations often appear here in another language.",
     searching: "Searching the catalogues…",
     searchedAs:
       'Nothing came back in Ukrainian, so this is a search for "{query}".',

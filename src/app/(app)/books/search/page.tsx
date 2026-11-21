@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getDictionary } from "@/i18n";
 import { interpolate } from "@/i18n/interpolate";
-import { findBooks } from "@/lib/openlibrary";
+import { CYRILLIC, findBooks } from "@/lib/openlibrary";
 import { requireCurrentUser } from "@/lib/session";
 
 /**
@@ -91,6 +91,14 @@ async function Results({ query }: { query: string }) {
       {searchedAs ? (
         <p className="text-muted-foreground text-sm">
           {interpolate(dict.books.searchedAs, { query: searchedAs })}
+        </p>
+      ) : null}
+      {/* Searched in Ukrainian, answered in English — which looks like a
+          bug and is not one. Only when the catalogue answered the query as
+          typed: when it was translated, the line above already explains it. */}
+      {!searchedAs && hits.length > 0 && CYRILLIC.test(query) ? (
+        <p className="text-muted-foreground text-sm">
+          {dict.books.catalogueLanguage}
         </p>
       ) : null}
       <SearchResults hits={hits} />

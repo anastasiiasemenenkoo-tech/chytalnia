@@ -105,16 +105,20 @@ async function wikidata<T>(params: Record<string, string>): Promise<T | null> {
  * Returns at most `limit` names, and an empty list for anything it cannot
  * answer — no match, no English label, Wikidata unreachable.
  */
-export async function englishNamesFor(
-  query: string,
-  limit = 3,
-): Promise<string[]> {
-  const q = query.trim();
-  if (!q) return [];
+type Tiers = { writers: string[]; people: string[]; rest: string[] };
+
+/**
+ * Ask Wikidata about one term and sort what comes back into three tiers,
+ * each keeping Wikidata's own order inside it: whoever writes books, then
+ * anyone else who is a person, then villages and surname pages.
+ */
+async function tiersFor(term: string): Promise<Tiers> {
+  const empty: Tiers = { writers: [], people: [], rest: [] };
+  if (!term) return empty;
 
   const found = await wikidata<SearchResponse>({
     action: "wbsearchentities",
-    search: q,
+    search: term,
     language: "uk",
     uselang: "uk",
     type: "item",
@@ -124,7 +128,7 @@ export async function englishNamesFor(
   const ids = (found?.search ?? [])
     .map((hit) => hit.id)
     .filter((id): id is string => Boolean(id));
-  if (ids.length === 0) return [];
+  if (ids.length === 0) return empty;
 
   const entities = await wikidata<EntitiesResponse>({
     action: "wbgetentities",
@@ -132,15 +136,9 @@ export async function englishNamesFor(
     props: "labels|claims",
     languages: "en",
   });
-  if (!entities?.entities) return [];
+  if (!entities?.entities) return empty;
 
-  // Three tiers, each keeping Wikidata's own order inside it: whoever writes
-  // books, then anyone else who is a person, then villages and surname
-  // pages. Every name still gets tried — this only decides who goes first,
-  // and going first is what spares the catalogue two more lookups.
-  const writers: string[] = [];
-  const people: string[] = [];
-  const rest: string[] = [];
+  const tiers: Tiers = { writers: [], people: [], rest: [] };
 
   for (const id of ids) {
     const entity = entities.entities[id];
@@ -155,14 +153,68 @@ export async function englishNamesFor(
     const kinds = claimed("P31");
     const jobs = claimed("P106");
 
-    if (jobs.some((job) => WRITERS.has(job)) || kinds.some((k) => WORKS.has(k))) {
-      writers.push(label);
+    if (
+      jobs.some((job) => WRITERS.has(job)) ||
+      kinds.some((kind) => WORKS.has(kind))
+    ) {
+      tiers.writers.push(label);
     } else if (kinds.includes(PERSON)) {
-      people.push(label);
+      tiers.people.push(label);
     } else {
-      rest.push(label);
+      tiers.rest.push(label);
     }
   }
 
-  return [...new Set([...writers, ...people, ...rest])].slice(0, limit);
+  return tiers;
+}
+
+/** Words too short to be a name worth looking up on their own. */
+const SHORTEST_WORD = 3;
+/**
+ * Enough for «автор плюс назва»; past that it is a sentence, not a query.
+ * Each word costs two requests, and Wikidata answers a burst of them with
+ * «You are making too many requests» — which the fetch wrapper turns into
+ * no result rather than an error, but a search that asks for nothing back
+ * is still a search that found nothing.
+ */
+const MOST_WORDS = 3;
+
+export async function englishNamesFor(
+  query: string,
+  limit = 3,
+): Promise<string[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const whole = await tiersFor(q);
+  const names = [
+    ...new Set([...whole.writers, ...whole.people, ...whole.rest]),
+  ];
+  if (names.length > 0) return names.slice(0, limit);
+
+  // Nothing is called «Бакман Мої друзі», and nothing ever will be: that is
+  // an author and a title typed together, which is how people search. So
+  // when the whole phrase draws a blank, the words are tried one by one and
+  // whatever can be translated is taken to the catalogue.
+  const words = q.split(/\s+/).filter((word) => word.length >= SHORTEST_WORD);
+  if (words.length < 2) return [];
+
+  const perWord = await Promise.all(
+    words.slice(0, MOST_WORDS).map((word) => tiersFor(word)),
+  );
+
+  // Only the top tier here. A single word out of a phrase is thin evidence,
+  // and «друзі» matching some village would quietly send the search
+  // somewhere the reader never asked to go.
+  const translated = perWord
+    .map((tier) => tier.writers[0])
+    .filter((name): name is string => Boolean(name));
+  if (translated.length === 0) return [];
+
+  // One query out of the parts that could be translated. The rest is
+  // dropped rather than passed through: Open Library finds nothing at all
+  // for «Fredrik Backman Мої друзі», so a half-translated phrase is worse
+  // than the half that works.
+  const combined = [...new Set(translated)].join(" ");
+  return combined ? [combined] : [];
 }

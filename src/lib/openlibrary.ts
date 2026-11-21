@@ -76,7 +76,7 @@ export type BookSearch = {
   searchedAs: string | null;
 };
 
-const CYRILLIC = /\p{Script=Cyrillic}/u;
+export const CYRILLIC = /\p{Script=Cyrillic}/u;
 
 /**
  * Search the way a Ukrainian reader expects it to work.

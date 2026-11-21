@@ -1,5 +1,6 @@
 import { AddToShelfButton } from "@/components/books/add-to-shelf-button";
 import { BookCover } from "@/components/books/book-cover";
+import { ManualEntryDialog } from "@/components/books/manual-entry-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDictionary } from "@/i18n";
 import type { OpenLibraryHit } from "@/lib/openlibrary";
@@ -10,8 +11,16 @@ export async function SearchResults({ hits }: { hits: OpenLibraryHit[] }) {
   if (hits.length === 0) {
     return (
       <Card>
-        <CardContent className="text-muted-foreground py-12 text-center text-sm">
-          {dict.books.noResults}
+        <CardContent className="text-muted-foreground space-y-4 py-12 text-center text-sm">
+          <p>{dict.books.noResults}</p>
+          {/* Open Library is an English-language catalogue and simply does
+              not have a lot of Ukrainian publishing, so a search that finds
+              nothing is often right about the catalogue and wrong about the
+              book. The book still has to be able to reach a shelf. */}
+          <p>{dict.books.noResultsManual}</p>
+          <div className="flex justify-center">
+            <ManualEntryDialog />
+          </div>
         </CardContent>
       </Card>
     );
