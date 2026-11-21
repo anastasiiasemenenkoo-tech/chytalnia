@@ -268,6 +268,7 @@ export const en: Dictionary = {
     search: "Search",
     typeToBegin: "A title, an author, a few letters — start anywhere.",
     noResults: "Silence in return. Try another title or author.",
+    searching: "Searching the catalogues…",
     searchedAs:
       'Nothing came back in Ukrainian, so this is a search for "{query}".',
     add: "Add",

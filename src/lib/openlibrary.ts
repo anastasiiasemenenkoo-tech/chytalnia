@@ -14,6 +14,9 @@ type RawDoc = {
   cover_i?: number;
 };
 
+/** Long enough for a slow answer, short enough to leave room for another. */
+const SEARCH_TIMEOUT_MS = 7000;
+
 export function coverUrlFromId(coverId: number, size: "S" | "M" | "L" = "M") {
   return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`;
 }
@@ -33,16 +36,25 @@ export async function searchOpenLibrary(
       fields: "key,title,author_name,cover_i",
     }).toString();
 
-  const res = await fetch(url, {
-    headers: { "User-Agent": "reader-dashboard (learning project)" },
-    // The same titles get typed over and over, and Open Library is donated
-    // infrastructure. An hour-old answer about a published book is fine.
-    next: { revalidate: 3600 },
-  });
-  if (!res.ok) return [];
-
-  const data = (await res.json()) as { docs?: RawDoc[] };
-  const docs = data.docs ?? [];
+  let docs: RawDoc[];
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "reader-dashboard (learning project)" },
+      // The same titles get typed over and over, and Open Library is donated
+      // infrastructure. An hour-old answer about a published book is fine.
+      next: { revalidate: 3600 },
+      // Open Library can take four seconds to say it has never heard of a
+      // name, and occasionally it does not answer at all. Unbounded, one
+      // slow lookup took the whole page down with it.
+      signal: AbortSignal.timeout(SEARCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return [];
+    docs = ((await res.json()) as { docs?: RawDoc[] }).docs ?? [];
+  } catch {
+    // Timed out, unreachable, or answered with something that is not JSON.
+    // A search that finds nothing is a page; an exception is a crash.
+    return [];
+  }
 
   return docs
     .filter((d) => d.key && d.title)
@@ -82,15 +94,33 @@ export async function findBooks(
   const q = query.trim();
   if (!q) return { hits: [], searchedAs: null };
 
-  const direct = await searchOpenLibrary(q, limit);
-  if (direct.length > 0 || !CYRILLIC.test(q)) {
-    return { hits: direct, searchedAs: null };
+  // A Latin query never needs the bridge, and asking Wikidata about one
+  // would only hang a round trip off a search that already works.
+  if (!CYRILLIC.test(q)) {
+    return { hits: await searchOpenLibrary(q, limit), searchedAs: null };
   }
 
-  for (const name of await englishNamesFor(q)) {
-    const hits = await searchOpenLibrary(name, limit);
-    if (hits.length > 0) return { hits, searchedAs: name };
-  }
+  // Both questions at once. Open Library takes seconds to answer that it has
+  // never heard of "Бакман", and waiting for that answer before so much as
+  // asking Wikidata what the name is in English is where this search spent
+  // its time — enough of it to time the page out on Vercel.
+  const [direct, names] = await Promise.all([
+    searchOpenLibrary(q, limit),
+    englishNamesFor(q),
+  ]);
+  if (direct.length > 0) return { hits: direct, searchedAs: null };
 
-  return { hits: [], searchedAs: null };
+  // The candidates go together too, and the best-ranked one that found
+  // anything wins — not whichever answered first.
+  const tried = await Promise.all(
+    names.map(async (name) => ({
+      name,
+      hits: await searchOpenLibrary(name, limit),
+    })),
+  );
+  const found = tried.find((attempt) => attempt.hits.length > 0);
+
+  return found
+    ? { hits: found.hits, searchedAs: found.name }
+    : { hits: [], searchedAs: null };
 }

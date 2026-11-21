@@ -19,14 +19,11 @@ const A_MONTH = 60 * 60 * 24 * 30;
 
 const UA = { "User-Agent": "reader-dashboard (learning project)" };
 
-/**
- * `instance of` values worth taking to a library catalogue: people, and the
- * things people write. Wikidata's own relevance order puts a village in
- * Minnesota above a Swedish novelist for the query "Бакман", so a candidate
- * that is a person or a work is tried first.
- */
-const PEOPLE_AND_WORKS = new Set([
-  "Q5", // human
+/** Short enough that a silent Wikidata cannot hold up the page. */
+const TIMEOUT_MS = 5000;
+
+/** `instance of` values that are the thing itself: a book, not a person. */
+const WORKS = new Set([
   "Q7725634", // literary work
   "Q571", // book
   "Q8261", // novel
@@ -35,6 +32,35 @@ const PEOPLE_AND_WORKS = new Set([
   "Q1667921", // novel series
   "Q277759", // book series
   "Q3331189", // version, edition or translation
+]);
+
+/** human */
+const PERSON = "Q5";
+
+/**
+ * Occupations that put a person in a library catalogue.
+ *
+ * Wikidata's relevance order for "Бакман" is a town in Minnesota, then a
+ * boxer, then a disambiguation page, and only fourth the Swedish novelist
+ * the reader meant. Grouping by `instance of` alone is not enough — the
+ * boxer is as human as the novelist — so what the person did for a living
+ * decides between them.
+ */
+const WRITERS = new Set([
+  "Q36180", // writer
+  "Q482980", // author
+  "Q6625963", // novelist
+  "Q49757", // poet
+  "Q214917", // playwright
+  "Q4853732", // children's writer
+  "Q12144794", // non-fiction writer
+  "Q11774202", // essayist
+  "Q28389", // screenwriter
+  "Q1930187", // journalist
+  "Q18814623", // autobiographer
+  "Q6051619", // memoirist
+  "Q13570226", // translator
+  "Q201788", // historian
 ]);
 
 type SearchResponse = { search?: { id?: string }[] };
@@ -61,6 +87,7 @@ async function wikidata<T>(params: Record<string, string>): Promise<T | null> {
     const res = await fetch(url, {
       headers: UA,
       next: { revalidate: A_MONTH },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -107,9 +134,12 @@ export async function englishNamesFor(
   });
   if (!entities?.entities) return [];
 
-  // Keep Wikidata's relevance order within each group, but let people and
-  // books jump the queue ahead of villages and surname pages.
-  const likely: string[] = [];
+  // Three tiers, each keeping Wikidata's own order inside it: whoever writes
+  // books, then anyone else who is a person, then villages and surname
+  // pages. Every name still gets tried — this only decides who goes first,
+  // and going first is what spares the catalogue two more lookups.
+  const writers: string[] = [];
+  const people: string[] = [];
   const rest: string[] = [];
 
   for (const id of ids) {
@@ -117,14 +147,22 @@ export async function englishNamesFor(
     const label = entity?.labels?.en?.value?.trim();
     if (!label) continue;
 
-    const kinds = (entity?.claims?.P31 ?? [])
-      .map((claim) => claim.mainsnak?.datavalue?.value?.id)
-      .filter((kind): kind is string => Boolean(kind));
+    const claimed = (property: string) =>
+      (entity?.claims?.[property] ?? [])
+        .map((claim) => claim.mainsnak?.datavalue?.value?.id)
+        .filter((value): value is string => Boolean(value));
 
-    (kinds.some((kind) => PEOPLE_AND_WORKS.has(kind)) ? likely : rest).push(
-      label,
-    );
+    const kinds = claimed("P31");
+    const jobs = claimed("P106");
+
+    if (jobs.some((job) => WRITERS.has(job)) || kinds.some((k) => WORKS.has(k))) {
+      writers.push(label);
+    } else if (kinds.includes(PERSON)) {
+      people.push(label);
+    } else {
+      rest.push(label);
+    }
   }
 
-  return [...new Set([...likely, ...rest])].slice(0, limit);
+  return [...new Set([...writers, ...people, ...rest])].slice(0, limit);
 }
