@@ -10,7 +10,7 @@ export const en: Dictionary = {
     stackLibraryLabel: "Library Country — books for Ukraine's libraries",
     plantCaption: "This one is watered. Forests and steppes are not.",
     plantNatureLabel: "Ukrainian Nature Conservation Group — support",
-    hint: "Hover the cat, the books or the plant — none asks for itself",
+    hint: "Everyone here is asking for something. Hover the cat, the books or the plant.",
   },
   errors: {
     notFoundTitle: "That page isn't on the shelves",
