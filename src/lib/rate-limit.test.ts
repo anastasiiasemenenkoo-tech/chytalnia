@@ -15,8 +15,14 @@ const { callerAddress, consume, limits, peek, MINUTE, HOUR } = await import(
   "@/lib/rate-limit"
 );
 
-const inAnHour = () => new Date(Date.now() + HOUR);
-const anHourAgo = () => new Date(Date.now() - HOUR);
+/**
+ * What the queries now return: a count and the seconds Postgres says are
+ * left. No timestamp crosses the driver, which is the point — the first
+ * version compared a zone-less `windowEnd` against this process's clock, so
+ * on a machine an hour off UTC every live window read as expired and nobody
+ * was ever refused.
+ */
+const live = (count: number, retry_seconds = 3600) => [{ count, retry_seconds }];
 
 const oneLimit = [
   { bucket: "signin:email", subject: "a@b.com", max: 3, windowMs: 15 * MINUTE },
@@ -34,28 +40,30 @@ describe("peek — what is already on the record", () => {
   });
 
   it("allows a caller under the ceiling", async () => {
-    queryRaw.mockResolvedValue([{ count: 2, windowEnd: inAnHour() }]);
+    queryRaw.mockResolvedValue(live(2));
     expect(await peek(oneLimit)).toEqual({ ok: true });
   });
 
   it("refuses the attempt that would be one too many", async () => {
-    queryRaw.mockResolvedValue([{ count: 3, windowEnd: inAnHour() }]);
+    queryRaw.mockResolvedValue(live(3));
     const verdict = await peek(oneLimit);
     expect(verdict.ok).toBe(false);
   });
 
-  it("ignores a window that has already run out", async () => {
-    // The row is still there — it is swept later, not on read — so a window
-    // in the past has to read as no window at all, or a caller who hit the
-    // limit once is locked out until the housekeeping runs.
-    queryRaw.mockResolvedValue([{ count: 99, windowEnd: anHourAgo() }]);
-    expect(await peek(oneLimit)).toEqual({ ok: true });
+  it("asks the database which windows are still live", async () => {
+    // An expired row is still in the table — it is swept later, not on read
+    // — so the query itself filters on `windowEnd > now()`, and no row means
+    // no live window. Decided by one clock, the database's.
+    const [sql] = queryRaw.mock.calls[0] ?? [[]];
+    queryRaw.mockResolvedValue([]);
+    await peek(oneLimit);
+    const text = (queryRaw.mock.calls.at(-1)?.[0] as string[]).join("?");
+    expect(text).toContain('"windowEnd" > now()');
+    void sql;
   });
 
   it("refuses when any one of several limits is spent", async () => {
-    queryRaw
-      .mockResolvedValueOnce([{ count: 0, windowEnd: inAnHour() }])
-      .mockResolvedValueOnce([{ count: 30, windowEnd: inAnHour() }]);
+    queryRaw.mockResolvedValueOnce(live(0)).mockResolvedValueOnce(live(30));
     const verdict = await peek(limits.signIn("a@b.com", "1.2.3.4"));
     expect(verdict.ok).toBe(false);
   });
@@ -69,27 +77,24 @@ describe("consume — counting the attempt", () => {
 
   it("allows the attempt that reaches the ceiling exactly", async () => {
     // max: 3 means three attempts are allowed, so the third is fine.
-    queryRaw.mockResolvedValue([{ count: 3, windowEnd: inAnHour() }]);
+    queryRaw.mockResolvedValue(live(3));
     expect(await consume(oneLimit)).toEqual({ ok: true });
   });
 
   it("refuses the one after that", async () => {
-    queryRaw.mockResolvedValue([{ count: 4, windowEnd: inAnHour() }]);
+    queryRaw.mockResolvedValue(live(4));
     const verdict = await consume(oneLimit);
     expect(verdict.ok).toBe(false);
   });
 
   it("says how long to wait, rounded up and never zero", async () => {
-    queryRaw.mockResolvedValue([
-      { count: 4, windowEnd: new Date(Date.now() + 61_000) },
-    ]);
+    queryRaw.mockResolvedValue(live(4, 61));
     const verdict = await consume(oneLimit);
     if (verdict.ok) throw new Error("expected a refusal");
     expect(verdict.retryAfterMinutes).toBe(2);
+    expect(verdict.retryAfterMs).toBe(61_000);
 
-    queryRaw.mockResolvedValue([
-      { count: 4, windowEnd: new Date(Date.now() + 1_000) },
-    ]);
+    queryRaw.mockResolvedValue(live(4, 1));
     const soon = await consume(oneLimit);
     if (soon.ok) throw new Error("expected a refusal");
     // "Try again in 0 minutes" next to a door that will not open reads as a
@@ -98,7 +103,7 @@ describe("consume — counting the attempt", () => {
   });
 
   it("counts against every limit, not only the first to fail", async () => {
-    queryRaw.mockResolvedValue([{ count: 1, windowEnd: inAnHour() }]);
+    queryRaw.mockResolvedValue(live(1));
     await consume(limits.signIn("a@b.com", "1.2.3.4"));
     expect(queryRaw).toHaveBeenCalledTimes(2);
   });

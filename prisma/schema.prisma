@@ -249,9 +249,15 @@ model ClubComment {
 /// no limit at all. One row per key, incremented by an atomic upsert, and
 /// expired rows are swept opportunistically.
 model RateLimit {
-  key       String   @id
-  count     Int      @default(0)
-  windowEnd DateTime
+  key   String @id
+  count Int    @default(0)
+  /// `Timestamptz`, not Prisma's default `timestamp(3)`. A column without a
+  /// zone comes back through the driver as a *local* time, so on any machine
+  /// that is not on UTC every window read in JavaScript looked an hour stale
+  /// and `peek` refused nobody. The comparisons all happen in SQL now, which
+  /// makes this belt and braces — and it is still the honest type for an
+  /// instant.
+  windowEnd DateTime @db.Timestamptz(3)
 
   @@index([windowEnd])
 }

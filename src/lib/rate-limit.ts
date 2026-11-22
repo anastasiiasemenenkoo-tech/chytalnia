@@ -1,6 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 
 /**
@@ -45,8 +46,18 @@ function keyOf(limit: Limit) {
   return `${limit.bucket}:${limit.subject.toLowerCase()}`;
 }
 
-function refused(windowEnd: Date): Verdict {
-  const retryAfterMs = Math.max(0, windowEnd.getTime() - Date.now());
+/**
+ * How long to wait, built from the number of seconds **Postgres** says are
+ * left rather than from a `Date` compared against this process's clock.
+ *
+ * That is the whole point: the first version of this file read `windowEnd`
+ * back into a `Date` and compared it to `Date.now()`. The column had no time
+ * zone, so the driver handed back a local time, and on a machine an hour off
+ * UTC every live window looked expired — `peek` let everyone through and
+ * refused nobody. One clock, and it is the database's.
+ */
+function refused(retryAfterSeconds: number): Verdict {
+  const retryAfterMs = Math.max(0, retryAfterSeconds) * 1000;
   return {
     ok: false,
     retryAfterMs,
@@ -55,6 +66,12 @@ function refused(windowEnd: Date): Verdict {
     retryAfterMinutes: Math.max(1, Math.ceil(retryAfterMs / 60_000)),
   };
 }
+
+/**
+ * Seconds left in the window, as one SQL expression — so no timestamp ever
+ * has to survive a trip through the driver to be compared.
+ */
+const SECONDS_LEFT = `GREATEST(0, CEIL(EXTRACT(EPOCH FROM ("windowEnd" - now()))))::int`;
 
 /**
  * The caller's address, as the platform reports it.
@@ -83,13 +100,18 @@ export async function callerAddress(): Promise<string> {
 export async function peek(limits: Limit[]): Promise<Verdict> {
   try {
     for (const limit of limits) {
+      // `windowEnd > now()` is part of the query, so a row coming back is a
+      // live window by definition — an expired one is no window at all, and
+      // the next write starts it again.
       const [row] = await prisma.$queryRaw<
-        Array<{ count: number; windowEnd: Date }>
-      >`SELECT "count", "windowEnd" FROM "RateLimit" WHERE "key" = ${keyOf(limit)}`;
+        Array<{ count: number; retry_seconds: number }>
+      >`
+        SELECT "count", ${Prisma.raw(SECONDS_LEFT)} AS retry_seconds
+        FROM "RateLimit"
+        WHERE "key" = ${keyOf(limit)} AND "windowEnd" > now()
+      `;
       if (!row) continue;
-      // An expired window is no window; the next write starts it again.
-      if (row.windowEnd.getTime() <= Date.now()) continue;
-      if (row.count >= limit.max) return refused(row.windowEnd);
+      if (row.count >= limit.max) return refused(row.retry_seconds);
     }
     return ALLOWED;
   } catch (error) {
@@ -113,7 +135,7 @@ export async function consume(limits: Limit[]): Promise<Verdict> {
     for (const limit of limits) {
       const windowEnd = new Date(Date.now() + limit.windowMs);
       const [row] = await prisma.$queryRaw<
-        Array<{ count: number; windowEnd: Date }>
+        Array<{ count: number; retry_seconds: number }>
       >`
         INSERT INTO "RateLimit" ("key", "count", "windowEnd")
         VALUES (${keyOf(limit)}, 1, ${windowEnd})
@@ -126,11 +148,11 @@ export async function consume(limits: Limit[]): Promise<Verdict> {
             WHEN "RateLimit"."windowEnd" <= now() THEN ${windowEnd}
             ELSE "RateLimit"."windowEnd"
           END
-        RETURNING "count", "windowEnd"
+        RETURNING "count", ${Prisma.raw(SECONDS_LEFT)} AS retry_seconds
       `;
 
       if (row && row.count > limit.max && worst.ok) {
-        worst = refused(row.windowEnd);
+        worst = refused(row.retry_seconds);
       }
     }
   } catch (error) {
