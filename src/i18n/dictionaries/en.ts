@@ -221,6 +221,9 @@ export const en: Dictionary = {
     deleteMismatch: "That address doesn't match. Your account is still here.",
   },
   readers: {
+    ownProfileVisible:
+      "This is how your profile looks to anyone signed in to Chytal'nia: shelves, ratings and reviews. Your notes and your email address stay yours alone.",
+    ownProfileMore: "More about this",
     title: "Readers",
     subtitle: "Who's finishing what — and who's reading alongside you.",
     feedTitle: "Just finished",
@@ -578,6 +581,12 @@ export const en: Dictionary = {
     commentNotFound: "That comment is already gone.",
     commentDeleteDenied: "Only the author or the club owner can delete it.",
     discussionTitle: "Discussion",
+    openWarningDiscussion:
+      "Everything written here is visible to the club's members — and anyone signed in to Chytal'nia can join.",
+    openWarningCreate:
+      "This club will be open: anyone signed in will find it in the list, can join, and can read the discussion.",
+    openWarningDiscover:
+      "Every club here is open — you can join right away, with no invitation and no approval.",
     discussionEmpty: "Quiet as a reading room. Care to break the silence?",
     commentPlaceholder: "What's on your mind?",
     commentSubmit: "Post",

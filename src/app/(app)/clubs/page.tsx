@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { ClubCard } from "@/components/clubs/club-card";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { VisibilityNote } from "@/components/shell/visibility-note";
 import { getDictionary } from "@/i18n";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
@@ -71,6 +72,7 @@ export default async function ClubsPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{dict.clubs.discoverSection}</h2>
+        <VisibilityNote>{dict.clubs.openWarningDiscover}</VisibilityNote>
         {otherClubs.length === 0 ? (
           <Card>
             <CardContent className="text-muted-foreground py-8 text-center text-sm">

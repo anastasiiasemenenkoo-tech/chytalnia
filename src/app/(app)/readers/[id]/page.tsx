@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { VisibilityNote } from "@/components/shell/visibility-note";
 import { getDictionary, getLocale } from "@/i18n";
 import { plural } from "@/i18n/plural";
 import { prisma } from "@/lib/db";
@@ -135,6 +136,17 @@ export default async function ReaderProfilePage({
           <FollowButton readerId={reader.id} isFollowing={isFollowing} />
         )}
       </header>
+
+      {/* The reader looks at their own page through the same eyes everyone
+          else does, which is exactly why it is worth saying so here. */}
+      {isMe && (
+        <VisibilityNote
+          href="/privacy"
+          linkLabel={dict.readers.ownProfileMore}
+        >
+          {dict.readers.ownProfileVisible}
+        </VisibilityNote>
+      )}
 
       <Separator />
 

@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { VisibilityNote } from "@/components/shell/visibility-note";
 import { useDict } from "@/i18n/provider";
 
 export function CreateClubForm() {
@@ -57,6 +58,7 @@ export function CreateClubForm() {
               </p>
             )}
           </div>
+          <VisibilityNote>{dict.clubs.openWarningCreate}</VisibilityNote>
         </CardContent>
         <CardFooter className="mt-4">
           <Button type="submit" disabled={pending}>

@@ -1,5 +1,6 @@
 import { CommentForm } from "@/components/clubs/comment-form";
 import { CommentThread } from "@/components/clubs/comment-thread";
+import { VisibilityNote } from "@/components/shell/visibility-note";
 import {
   Card,
   CardContent,
@@ -49,7 +50,12 @@ export async function ClubDiscussion({
         <CardTitle>{dict.clubs.discussionTitle}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <CommentForm clubId={clubId} />
+        <div className="space-y-2">
+          {/* Before the box, not after it: by the time someone has written
+              something, telling them who will read it is too late. */}
+          <VisibilityNote>{dict.clubs.openWarningDiscussion}</VisibilityNote>
+          <CommentForm clubId={clubId} />
+        </div>
         {comments.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {dict.clubs.discussionEmpty}
