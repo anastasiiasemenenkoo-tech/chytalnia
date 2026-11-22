@@ -33,6 +33,16 @@ export default async function AuthLayout({
       <div className="mt-10 w-full max-w-2xl">
         <BookshelfStrip />
       </div>
+      {/* This is where an address and a password are handed over, so this is
+          where the policy has to be one click away. */}
+      <nav className="text-muted-foreground mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
+        <Link href="/impressum" className="underline">
+          {dict.legal.impressum}
+        </Link>
+        <Link href="/privacy" className="underline">
+          {dict.legal.privacy}
+        </Link>
+      </nav>
     </div>
   );
 }

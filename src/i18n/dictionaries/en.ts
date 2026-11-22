@@ -110,6 +110,18 @@ export const en: Dictionary = {
     no: "No",
   },
   langs: { uk: "Українська", en: "English" },
+  legal: {
+    impressum: "Impressum",
+    privacy: "Privacy",
+    back: "Back to the start",
+    todo: "to fill in",
+    exportTitle: "Your data",
+    exportSubtitle:
+      "Everything Chytal'nia knows about you in one file — shelves, ratings, reviews, notes, clubs, follows.",
+    exportAction: "Download my data",
+    exportHint:
+      "A JSON file. Your notes and reviews are in it — keep it somewhere safe.",
+  },
   validation: {
     generic: "Something in that didn't add up. Check the fields and try again.",
     titleRequired: "A book needs a title. Give it one.",

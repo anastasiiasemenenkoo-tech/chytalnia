@@ -124,6 +124,17 @@ export const uk = {
     no: "Ні",
   },
   langs: { uk: "Українська", en: "English" },
+  legal: {
+    impressum: "Impressum",
+    privacy: "Приватність",
+    back: "На головну",
+    todo: "заповнити",
+    exportTitle: "Твої дані",
+    exportSubtitle:
+      "Усе, що Читальня про тебе знає, одним файлом — полиці, оцінки, відгуки, нотатки, клуби, підписки.",
+    exportAction: "Завантажити мої дані",
+    exportHint: "Файл JSON. Нотатки й відгуки там є — зберігай його обережно.",
+  },
   /**
    * Messages for the form rules outside the auth pages. The Zod schemas in
    * `@/lib/validators` emit these keys; the server actions swap them for

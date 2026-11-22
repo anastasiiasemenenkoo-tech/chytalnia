@@ -107,6 +107,16 @@ export default async function Home() {
       </main>
 
       <footer className="text-muted-foreground border-t px-6 py-6 text-center text-xs">
+        {/* § 5 DDG wants the Impressum reachable from anywhere on the site,
+            and Art. 13 GDPR wants the policy where people sign up. */}
+        <nav className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          <Link href="/impressum" className="underline">
+            {dict.legal.impressum}
+          </Link>
+          <Link href="/privacy" className="underline">
+            {dict.legal.privacy}
+          </Link>
+        </nav>
         {dict.landing.builtOn}
       </footer>
     </div>

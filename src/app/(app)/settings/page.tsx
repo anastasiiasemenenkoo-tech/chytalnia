@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserRound } from "lucide-react";
+import { Download, UserRound } from "lucide-react";
 
 import { DeleteAccountDialog } from "@/components/account/delete-account-dialog";
 import { ProfileForm } from "@/components/account/profile-form";
@@ -63,6 +63,28 @@ export default async function SettingsPage() {
             email={user.email}
             pendingEmail={pendingChange?.newEmail ?? null}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{dict.legal.exportTitle}</CardTitle>
+          <CardDescription>{dict.legal.exportSubtitle}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {/* A plain link, not a button with JavaScript: the browser already
+              knows how to save a file the server says is an attachment. */}
+          <a
+            href="/settings/export"
+            download
+            className={cn(buttonVariants({ variant: "outline" }))}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {dict.legal.exportAction}
+          </a>
+          <p className="text-muted-foreground text-xs">
+            {dict.legal.exportHint}
+          </p>
         </CardContent>
       </Card>
 
