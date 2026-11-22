@@ -121,7 +121,10 @@ export async function signupAction(
     };
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
   if (existing) {
     return { errors: { email: [dict.auth.emailTaken] }, values };
   }
@@ -271,6 +274,7 @@ export async function requestPasswordResetAction(
 
   const user = await prisma.user.findUnique({
     where: { email: parsed.data.email },
+    select: { id: true, email: true },
   });
 
   // Only actually create a token / send an email if the account exists, but

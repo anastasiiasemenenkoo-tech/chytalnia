@@ -23,9 +23,12 @@ import { useDict } from "@/i18n/provider";
 export function LoginForm({
   justReset = false,
   next = null,
+  refusal = null,
 }: {
   justReset?: boolean;
   next?: string | null;
+  /** Why a Google sign-in was turned away, if it was. */
+  refusal?: string | null;
 }) {
   const [state, action, pending] = useActionState(loginAction, undefined);
   const dict = useDict();
@@ -37,6 +40,15 @@ export function LoginForm({
         <CardDescription>{dict.auth.loginSubtitle}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {refusal && (
+          <p
+            className="text-destructive text-sm"
+            role="alert"
+            data-testid="google-refusal"
+          >
+            {refusal}
+          </p>
+        )}
         <GoogleSignInButton next={next} />
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />

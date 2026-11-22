@@ -291,6 +291,15 @@ export const en: Dictionary = {
     newHere: "New here?",
     signupLink: "Create an account",
     invalidCreds: "Email or password doesn't match. One of the two is off.",
+    googleRefused: {
+      "google-email-unverified":
+        "Google won't vouch for that address, so we can't rely on it. Sign in with a password instead.",
+      "google-account-has-password":
+        "An account with this address already exists, and it has a password. Sign in with it — or reset it from \u201cForgot your password?\u201d if you don't remember.",
+      "google-account-other":
+        "That address already belongs to a different Google account. Sign in with a password, or change the address in that account's settings.",
+      unknown: "Google sign-in didn't work. Try a password instead.",
+    },
     tooManyAttempts:
       "Too many sign-in attempts. Take {minutes} min and we'll be here.",
     tooManySignups:

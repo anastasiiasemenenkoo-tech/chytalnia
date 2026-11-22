@@ -32,6 +32,18 @@ model User {
   email          String   @unique
   name           String?
   hashedPassword String?
+  /// The `sub` claim of the Google account allowed to sign in as this
+  /// reader — Google's own id for a person, which never changes and is not
+  /// their address.
+  ///
+  /// Matching a Google sign-in on the **address** was a way into somebody
+  /// else's account: sign-up sends no letter, so anyone could register
+  /// `someone-else@gmail.com` with a password of their choosing, and when
+  /// the real owner later came in through Google the address matched and
+  /// they were dropped into that account. The id cannot be claimed that
+  /// way. It also means a reader who changes their address in settings
+  /// still signs in, instead of quietly getting a second account.
+  googleSub      String?  @unique
   yearlyGoal     Int?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
