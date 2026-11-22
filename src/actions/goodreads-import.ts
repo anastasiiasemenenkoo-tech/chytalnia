@@ -6,37 +6,8 @@ import { getDictionary } from "@/i18n";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import type { ShelfValue } from "@/lib/validators";
+import { type GoodreadsRow, readGoodreadsRows } from "@/lib/goodreads";
 
-type GoodreadsRow = {
-  "Book Id"?: string;
-  Title?: string;
-  Author?: string;
-  ISBN?: string;
-  ISBN13?: string;
-  "My Rating"?: string;
-  "Number of Pages"?: string;
-  "Date Read"?: string;
-  "Date Added"?: string;
-  "Exclusive Shelf"?: string;
-  "My Review"?: string;
-  "Private Notes"?: string;
-};
-
-const SHELF_MAP: Record<string, ShelfValue> = {
-  read: "READ",
-  "currently-reading": "READING",
-  "to-read": "WANT_TO_READ",
-  // Goodreads lets a reader mark a shelf of their own as exclusive, and the
-  // one people make is almost always for books they put down. These are the
-  // names they give it; without them those books vanish from the import.
-  "did-not-finish": "ABANDONED",
-  "did-not-finish-dnf": "ABANDONED",
-  dnf: "ABANDONED",
-  abandoned: "ABANDONED",
-  unfinished: "ABANDONED",
-  "gave-up": "ABANDONED",
-};
 
 /**
  * Covers are the slow part — one Open Library request per book — and a long
@@ -62,36 +33,6 @@ export type GoodreadsImportState =
   | { ok: true; imported: number; skipped: number }
   | { ok: false; error: string }
   | undefined;
-
-// Goodreads wraps ISBN cells like ="9781234567890" so Excel treats them as
-// text rather than numbers — strip that down to the digits (and trailing X
-// for ISBN-10 check digits).
-function cleanIsbn(raw: string | undefined): string | null {
-  if (!raw) return null;
-  const match = raw.match(/(\d{9,13}X?)/);
-  return match ? match[1] : null;
-}
-
-/**
- * Goodreads writes dates as YYYY/MM/DD with no time and no zone. Handing that
- * to `new Date` reads it in whatever zone the server happens to run in, so
- * the same file would land on different days in dev and on Vercel. Pin it to
- * UTC midnight and the date a reader sees is the date they exported.
- */
-function parseDate(raw: string | undefined): Date | null {
-  if (!raw) return null;
-  const ymd = raw.trim().match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-  if (ymd) {
-    return new Date(Date.UTC(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3])));
-  }
-  const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function positiveInt(raw: string | undefined): number | null {
-  const n = Number(raw);
-  return Number.isInteger(n) && n > 0 ? n : null;
-}
 
 function chunk<T>(items: T[], size: number): T[][] {
   const out: T[][] = [];
@@ -139,22 +80,6 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
-/** One row of the file, already read and judged importable. */
-type Entry = {
-  olid: string;
-  title: string;
-  author: string;
-  shelf: ShelfValue;
-  isbn: string | null;
-  totalPages: number | null;
-  rating: number | null;
-  addedAt: Date;
-  finishedAt: Date | null;
-  stampedAt: Date;
-  review: string | null;
-  notes: string | null;
-};
-
 export async function importGoodreadsCsv(
   _prev: GoodreadsImportState,
   formData: FormData,
@@ -173,49 +98,9 @@ export async function importGoodreadsCsv(
     skipEmptyLines: true,
   });
 
-  // A row is only importable if it names a book, carries an id to key it by,
-  // and sits on a shelf this app has. Everything else is counted and left.
-  const byOlid = new Map<string, Entry>();
-  let skipped = 0;
+  const { entries, skipped: unusable } = readGoodreadsRows(parsed.data);
+  let skipped = unusable;
 
-  for (const row of parsed.data) {
-    const title = row.Title?.trim();
-    const bookId = row["Book Id"]?.trim();
-    const shelf = SHELF_MAP[row["Exclusive Shelf"]?.trim().toLowerCase() ?? ""];
-    if (!title || !bookId || !shelf) {
-      if (title || bookId) skipped++;
-      continue;
-    }
-
-    // Goodreads does not repeat a book, but a hand-edited file can. The
-    // first line wins; a later one would only overwrite it with less.
-    if (byOlid.has(`goodreads:${bookId}`)) {
-      skipped++;
-      continue;
-    }
-
-    const dateAdded = parseDate(row["Date Added"]);
-    const dateRead = parseDate(row["Date Read"]);
-    const rating = positiveInt(row["My Rating"]);
-    const stampedAt = dateRead ?? dateAdded ?? new Date();
-
-    byOlid.set(`goodreads:${bookId}`, {
-      olid: `goodreads:${bookId}`,
-      title,
-      author: row.Author?.trim() || "Unknown",
-      shelf,
-      isbn: cleanIsbn(row.ISBN13) ?? cleanIsbn(row.ISBN),
-      totalPages: positiveInt(row["Number of Pages"]),
-      rating,
-      addedAt: dateAdded ?? new Date(),
-      finishedAt: shelf === "READ" ? (dateRead ?? dateAdded) : null,
-      stampedAt,
-      review: row["My Review"]?.trim() || null,
-      notes: row["Private Notes"]?.trim() || null,
-    });
-  }
-
-  const entries = [...byOlid.values()];
   if (entries.length === 0) {
     return { ok: false, error: dict.books.importEmpty };
   }

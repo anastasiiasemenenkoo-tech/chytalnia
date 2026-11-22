@@ -105,7 +105,7 @@ async function wikidata<T>(params: Record<string, string>): Promise<T | null> {
  * Returns at most `limit` names, and an empty list for anything it cannot
  * answer — no match, no English label, Wikidata unreachable.
  */
-type Tiers = { writers: string[]; people: string[]; rest: string[] };
+export type Tiers = { writers: string[]; people: string[]; rest: string[] };
 
 /**
  * Ask Wikidata about one term and sort what comes back into three tiers,
@@ -138,10 +138,22 @@ async function tiersFor(term: string): Promise<Tiers> {
   });
   if (!entities?.entities) return empty;
 
+  return rankCandidates(ids, entities.entities);
+}
+
+/**
+ * Sort what Wikidata returned into the three tiers, keeping its own order
+ * inside each. Pure, and separate from the fetching, because this is the
+ * part that decides whether «Бакман» means a novelist or a boxer.
+ */
+export function rankCandidates(
+  ids: string[],
+  entities: NonNullable<EntitiesResponse["entities"]>,
+): Tiers {
   const tiers: Tiers = { writers: [], people: [], rest: [] };
 
   for (const id of ids) {
-    const entity = entities.entities[id];
+    const entity = entities[id];
     const label = entity?.labels?.en?.value?.trim();
     if (!label) continue;
 
@@ -153,6 +165,8 @@ async function tiersFor(term: string): Promise<Tiers> {
     const kinds = claimed("P31");
     const jobs = claimed("P106");
 
+    // Grouping by `instance of` alone cannot tell two humans apart, and the
+    // boxer is as human as the novelist. Occupation decides.
     if (
       jobs.some((job) => WRITERS.has(job)) ||
       kinds.some((kind) => WORKS.has(kind))
