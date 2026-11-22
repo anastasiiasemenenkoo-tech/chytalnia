@@ -20,7 +20,13 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useDict } from "@/i18n/provider";
 
-export function LoginForm({ justReset = false }: { justReset?: boolean }) {
+export function LoginForm({
+  justReset = false,
+  next = null,
+}: {
+  justReset?: boolean;
+  next?: string | null;
+}) {
   const [state, action, pending] = useActionState(loginAction, undefined);
   const dict = useDict();
 
@@ -31,7 +37,7 @@ export function LoginForm({ justReset = false }: { justReset?: boolean }) {
         <CardDescription>{dict.auth.loginSubtitle}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <GoogleSignInButton />
+        <GoogleSignInButton next={next} />
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />
           <span className="text-muted-foreground text-xs">
@@ -41,6 +47,7 @@ export function LoginForm({ justReset = false }: { justReset?: boolean }) {
         </div>
       </CardContent>
       <form action={action} noValidate>
+        {next ? <input type="hidden" name="next" value={next} /> : null}
         <CardContent className="space-y-4">
           {justReset && (
             <p className="text-sm text-emerald-600 dark:text-emerald-400">
@@ -95,7 +102,10 @@ export function LoginForm({ justReset = false }: { justReset?: boolean }) {
           </Button>
           <p className="text-muted-foreground text-sm">
             {dict.auth.newHere}{" "}
-            <Link href="/signup" className="text-foreground underline">
+            <Link
+              href={next ? `/signup?next=${encodeURIComponent(next)}` : "/signup"}
+              className="text-foreground underline"
+            >
               {dict.auth.signupLink}
             </Link>
           </p>

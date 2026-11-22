@@ -19,12 +19,17 @@ export const getCurrentUser = cache(async () => {
 export async function requireCurrentUser() {
   const user = await getCurrentUser();
   if (!user) {
-    // Middleware turns most signed-out visits away before they get here, but
+    // `proxy.ts` turns most signed-out visits away before they get here, but
     // not all of them: a token can still be valid while the row it points at
     // is gone. Throwing made that a 500, and a 500 answering the RSC request
     // behind a <Link> click is invisible — the router drops the navigation
     // and the page just sits there. A redirect is something it understands.
-    redirect("/login");
+    //
+    // Not straight to `/login`, though. To the proxy that cookie still reads
+    // as a session, so it would send them back to `/dashboard`, which sends
+    // them here again — a loop the browser ends with an error page. The
+    // route handler can do what this render cannot: delete the cookie.
+    redirect("/api/session/stale");
   }
   return user;
 }

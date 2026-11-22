@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Check, Copy, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -8,6 +8,10 @@ import { createYearShare, revokeYearShare } from "@/actions/year-share";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDict } from "@/i18n/provider";
+
+const subscribeNever = () => () => {};
+const readOrigin = () => window.location.origin;
+const readNoOrigin = () => "";
 
 /**
  * The link that opens this reader's year to anyone holding it.
@@ -28,11 +32,13 @@ export function ShareLinkCard({
   const [token, setToken] = useState(initialToken);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState("");
-
-  // Only the browser knows which host this is being read on, and reading it
-  // during render would make the server and the client disagree.
-  useEffect(() => setOrigin(window.location.origin), []);
+  // Only the browser knows which host this is being read on. Read in an
+  // effect this was a second render of the whole card for one string;
+  // `useSyncExternalStore` is how React 19 wants a value that exists on the
+  // client and not on the server — the server snapshot is the empty string,
+  // so the first paint matches the HTML and there is nothing to hydrate
+  // around. The store never changes, so it never subscribes to anything.
+  const origin = useSyncExternalStore(subscribeNever, readOrigin, readNoOrigin);
 
   const url = token && origin ? `${origin}/y/${token}` : "";
 

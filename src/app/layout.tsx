@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/shell/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { getDictionary, getLocale } from "@/i18n";
+import { appUrl } from "@/lib/app-url";
 import { I18nProvider } from "@/i18n/provider";
 
 const geistSans = Geist({
@@ -40,6 +41,10 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getDictionary();
   return {
+    // Every relative URL in this metadata — the OG image above all — is
+    // resolved against this. Unset, Next falls back to localhost and says so
+    // in a warning, and a shared link previews as nothing.
+    metadataBase: new URL(appUrl()),
     title: dict.brand,
     description: dict.landing.blurb,
     // Added to the home screen from Safari, this opens without the address

@@ -124,6 +124,36 @@ export const uk = {
     no: "Ні",
   },
   langs: { uk: "Українська", en: "English" },
+  /**
+   * Messages for the form rules outside the auth pages. The Zod schemas in
+   * `@/lib/validators` emit these keys; the server actions swap them for
+   * prose. Anything a reader can trip over belongs here — a message that
+   * stays in the schema arrives in English.
+   */
+  validation: {
+    generic: "Щось у даних не склалося. Перевір поля й спробуй ще раз.",
+    titleRequired: "Без назви книжку не знайти. Напиши її.",
+    titleTooLong: "Назва задовга — до 300 символів.",
+    authorRequired: "А хто це написав? Без автора не обійтися.",
+    authorTooLong: "Ім’я автора задовге — до 300 символів.",
+    shelfInvalid: "Такої полиці немає. Обери одну зі списку.",
+    coverUrlInvalid:
+      "Обкладинка має бути звичайним http:// або https:// посиланням.",
+    pagesReadRange: "Сторінки — це ціле число від 0 до 100 000.",
+    totalPagesRange: "Усього сторінок — ціле число від 1 до 100 000.",
+    pagesExceedTotal:
+      "Прочитано більше, ніж є в книжці. Приємно, але перевір числа.",
+    ratingInvalid: "Оцінка — від однієї зірки до п’яти.",
+    reviewTooLong: "Відгук задовгий — до 2000 символів. Коротше — влучніше.",
+    notesTooLong: "Нотатки задовгі — до 4000 символів.",
+    clubNameTooShort: "Назва клубу — від 2 символів.",
+    clubNameTooLong: "Назва клубу задовга — до 80 символів.",
+    clubDescriptionTooLong: "Опис задовгий — до 500 символів.",
+    commentEmpty: "Спершу напиши щось.",
+    commentTooLong: "Задовгий коментар — до 2000 символів.",
+    datesInvalid: "Таку дату не вдалося прочитати. Обери її в календарі.",
+    dueBeforeStart: "Дедлайн не може бути раніше за початок.",
+  },
   shelves: {
     WANT_TO_READ: "Хочу прочитати",
     READING: "Читаю зараз",

@@ -27,10 +27,15 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({
+  next = null,
+}: {
+  next?: string | null;
+}) {
   const dict = useDict();
   return (
     <form action={signInWithGoogleAction}>
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <Button type="submit" variant="outline" className="w-full gap-2">
         <GoogleIcon />
         {dict.auth.continueWithGoogle}

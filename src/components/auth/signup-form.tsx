@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useDict } from "@/i18n/provider";
 
-export function SignupForm() {
+export function SignupForm({ next = null }: { next?: string | null }) {
   const [state, action, pending] = useActionState(signupAction, undefined);
   const dict = useDict();
 
@@ -31,7 +31,7 @@ export function SignupForm() {
         <CardDescription>{dict.auth.signupSubtitle}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <GoogleSignInButton />
+        <GoogleSignInButton next={next} />
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />
           <span className="text-muted-foreground text-xs">
@@ -41,6 +41,7 @@ export function SignupForm() {
         </div>
       </CardContent>
       <form action={action} noValidate>
+        {next ? <input type="hidden" name="next" value={next} /> : null}
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">{dict.auth.name}</Label>
@@ -114,7 +115,10 @@ export function SignupForm() {
           </Button>
           <p className="text-muted-foreground text-sm">
             {dict.auth.alreadyHaveAccount}{" "}
-            <Link href="/login" className="text-foreground underline">
+            <Link
+              href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+              className="text-foreground underline"
+            >
               {dict.auth.signInLink}
             </Link>
           </p>

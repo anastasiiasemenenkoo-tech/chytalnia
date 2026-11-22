@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookOpen } from "lucide-react";
@@ -20,6 +21,15 @@ import { cn } from "@/lib/utils";
  * follows this link learns what the owner meant to tell them and nothing
  * else about their account.
  */
+/**
+ * robots.txt already says not to crawl this, but a link pasted into a chat
+ * app gets fetched by previewers and crawlers that never ask for robots.txt.
+ * The header is the one instruction they all read.
+ */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true },
+};
+
 export default async function SharedYearPage({
   params,
 }: {

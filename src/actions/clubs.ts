@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getDictionary } from "@/i18n";
+import { firstMessage } from "@/i18n/validation";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { upsertUserBook } from "@/lib/user-books";
@@ -19,7 +20,12 @@ import {
 import type { ActionResult } from "@/actions/books";
 
 export type CreateClubState =
-  | { errors?: { name?: string[]; description?: string[]; _form?: string[] } }
+  | {
+      errors?: { name?: string[]; description?: string[]; _form?: string[] };
+      // Echoed back so a rejected name doesn't take the description with it.
+      // The auth forms already do this; this one was dropping both fields.
+      values?: { name?: string; description?: string };
+    }
   | undefined;
 
 export async function createClubAction(
@@ -27,12 +33,27 @@ export async function createClubAction(
   formData: FormData,
 ): Promise<CreateClubState> {
   const user = await requireCurrentUser();
+  const values = {
+    name: typeof formData.get("name") === "string" ? String(formData.get("name")) : "",
+    description:
+      typeof formData.get("description") === "string"
+        ? String(formData.get("description"))
+        : "",
+  };
   const parsed = CreateClubSchema.safeParse({
-    name: formData.get("name"),
-    description: formData.get("description") ?? "",
+    name: values.name,
+    description: values.description,
   });
   if (!parsed.success) {
-    return { errors: parsed.error.flatten().fieldErrors };
+    // The schema emits dictionary keys, so the form gets a sentence in the
+    // reader's own language instead of Zod's English.
+    const dict = await getDictionary();
+    return {
+      errors: {
+        name: [firstMessage(parsed.error, dict, ["name", "description"])],
+      },
+      values,
+    };
   }
 
   const club = await prisma.$transaction(async (tx) => {
@@ -57,6 +78,15 @@ export async function joinClub(formData: FormData): Promise<ActionResult> {
   const user = await requireCurrentUser();
   const parsed = ClubIdSchema.safeParse({ clubId: formData.get("clubId") });
   if (!parsed.success) { const dict = await getDictionary(); return { ok: false, error: dict.clubs.invalid }; }
+
+  // Without this the membership row hits a foreign key that is no longer
+  // there and Postgres raises — a crash page where "no such club" belongs.
+  // A link to a deleted club is the ordinary way to get here.
+  const club = await prisma.bookClub.findUnique({
+    where: { id: parsed.data.clubId },
+    select: { id: true },
+  });
+  if (!club) { const dict = await getDictionary(); return { ok: false, error: dict.clubs.invalid }; }
 
   await prisma.clubMembership.upsert({
     where: {
@@ -296,8 +326,10 @@ export async function updateClubSchedule(
     dueDate: formData.get("dueDate") ?? "",
   });
   if (!parsed.success) {
-    const issues = parsed.error.flatten().fieldErrors;
-    return { ok: false, error: issues.dueDate?.[0] ?? dict.clubs.invalidDates };
+    return {
+      ok: false,
+      error: firstMessage(parsed.error, dict, ["dueDate", "startDate"]),
+    };
   }
 
   const club = await prisma.bookClub.findUnique({

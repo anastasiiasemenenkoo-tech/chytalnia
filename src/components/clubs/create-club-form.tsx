@@ -35,6 +35,7 @@ export function CreateClubForm() {
               id="name"
               name="name"
               placeholder={dict.clubs.namePlaceholder}
+              defaultValue={state?.values?.name ?? ""}
               required
             />
             {state?.errors?.name?.[0] && (
@@ -47,6 +48,7 @@ export function CreateClubForm() {
               id="description"
               name="description"
               rows={4}
+              defaultValue={state?.values?.description ?? ""}
               placeholder={dict.clubs.descriptionPlaceholder}
             />
             {state?.errors?.description?.[0] && (

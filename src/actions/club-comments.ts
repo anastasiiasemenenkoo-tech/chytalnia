@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getDictionary } from "@/i18n";
+import { firstMessage } from "@/i18n/validation";
 import { prisma } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/session";
 import { ClubCommentSchema, DeleteClubCommentSchema } from "@/lib/validators";
@@ -17,8 +18,7 @@ export async function postClubComment(formData: FormData): Promise<ActionResult>
     parentId: formData.get("parentId") ?? "",
   });
   if (!parsed.success) {
-    const issues = parsed.error.flatten().fieldErrors;
-    return { ok: false, error: issues.body?.[0] ?? dict.clubs.invalid };
+    return { ok: false, error: firstMessage(parsed.error, dict, ["body"]) };
   }
 
   const membership = await prisma.clubMembership.findUnique({

@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getDictionary } from "@/i18n";
+import { requireCurrentUser } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 // Cover lookups make one Open Library request per book — large libraries can
@@ -19,6 +20,8 @@ import { cn } from "@/lib/utils";
 export const maxDuration = 60;
 
 export default async function GoodreadsImportPage() {
+  // Guarded here, not only by the layout: the two render in parallel.
+  await requireCurrentUser();
   const dict = await getDictionary();
 
   return (

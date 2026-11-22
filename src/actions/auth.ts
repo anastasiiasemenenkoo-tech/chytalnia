@@ -10,6 +10,7 @@ import { getDictionary } from "@/i18n";
 import { sendEmail } from "@/lib/mailer";
 import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
+import { safePath } from "@/lib/safe-path";
 import { requireCurrentUser } from "@/lib/session";
 import { createToken, hashToken, TOKEN_TTL_MS } from "@/lib/tokens";
 import {
@@ -59,6 +60,15 @@ function localize<T extends Record<string, string[] | undefined>>(
   ) as T;
 }
 
+/** Postgres' unique-constraint failure, as Prisma reports it. */
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { code?: unknown }).code === "P2002"
+  );
+}
+
 export async function signupAction(
   _prev: AuthFormState,
   formData: FormData,
@@ -81,6 +91,9 @@ export async function signupAction(
   }
 
   const { email, name, password } = parsed.data;
+  // Where they were going before they were asked to sign in. An invite link
+  // is the usual reason someone signs up at all.
+  const next = safePath(formData.get("next")) ?? "/dashboard";
 
   const dict = await getDictionary();
 
@@ -90,13 +103,24 @@ export async function signupAction(
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  await prisma.user.create({ data: { email, name, hashedPassword } });
+  try {
+    await prisma.user.create({ data: { email, name, hashedPassword } });
+  } catch (error) {
+    // `email` is unique, and the check above is a different statement from
+    // this one: two people signing up with the same address in the same
+    // second both pass it, and the loser used to get the crash page instead
+    // of "that address is taken".
+    if (isUniqueViolation(error)) {
+      return { errors: { email: [dict.auth.emailTaken] }, values };
+    }
+    throw error;
+  }
 
   try {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/dashboard",
+      redirectTo: next,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -112,6 +136,7 @@ export async function loginAction(
   formData: FormData,
 ): Promise<AuthFormState> {
   const values = { email: text(formData, "email") };
+  const next = safePath(formData.get("next")) ?? "/dashboard";
 
   const parsed = LoginSchema.safeParse({
     email: formData.get("email"),
@@ -130,7 +155,7 @@ export async function loginAction(
     await signIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
-      redirectTo: "/dashboard",
+      redirectTo: next,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -146,8 +171,9 @@ export async function logoutAction() {
   await signOut({ redirectTo: "/login" });
 }
 
-export async function signInWithGoogleAction() {
-  await signIn("google", { redirectTo: "/dashboard" });
+export async function signInWithGoogleAction(formData?: FormData) {
+  const next = safePath(formData?.get("next")) ?? "/dashboard";
+  await signIn("google", { redirectTo: next });
 }
 
 export type ForgotPasswordState =

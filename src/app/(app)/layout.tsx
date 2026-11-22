@@ -1,16 +1,16 @@
-import { redirect } from "next/navigation";
-
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
-import { getCurrentUser } from "@/lib/session";
+import { requireCurrentUser } from "@/lib/session";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  // Not its own `redirect("/login")`: a token whose user row is gone still
+  // reads as a session to `proxy.ts`, which sends it back here. One door out,
+  // and it is the one that clears the cookie.
+  const user = await requireCurrentUser();
 
   return (
     <div className="flex min-h-screen">

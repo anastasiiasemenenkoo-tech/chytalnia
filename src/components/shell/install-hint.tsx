@@ -1,12 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Share, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useDict } from "@/i18n/provider";
 
 const DISMISSED = "chytalnia:install-hint-dismissed";
+
+/**
+ * Whether this browser should ever be told about the home screen. All three
+ * questions are about the device, so none of them can be answered on the
+ * server — the server snapshot is `false` and the client's is read during
+ * render, which is what `useSyncExternalStore` is for. An effect that called
+ * `setState` rendered the whole dashboard a second time to decide it.
+ */
+function readEligible(): boolean {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    // Safari's own, older flag, still the one that is true on iOS.
+    (navigator as { standalone?: boolean }).standalone === true;
+
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(DISMISSED) === "1";
+  } catch {
+    // Private window, or storage blocked. Showing the hint once more is a
+    // smaller problem than crashing the dashboard.
+  }
+  return isIOS && !standalone && !dismissed;
+}
+
+const subscribeNever = () => () => {};
+const readIneligible = () => false;
 
 /**
  * iOS never offers to install anything. Safari has no prompt a site can
@@ -19,35 +46,23 @@ const DISMISSED = "chytalnia:install-hint-dismissed";
  */
 export function InstallHint() {
   const dict = useDict();
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    // Decided after mount on purpose: none of this exists on the server,
-    // and guessing would mean rendering one thing and hydrating another.
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      // Safari's own, older flag, still the one that is true on iOS.
-      (navigator as { standalone?: boolean }).standalone === true;
-
-    let dismissed = false;
-    try {
-      dismissed = localStorage.getItem(DISMISSED) === "1";
-    } catch {
-      // Private window, or storage blocked. Showing the hint once more is a
-      // smaller problem than crashing the dashboard.
-    }
-    setShow(isIOS && !standalone && !dismissed);
-  }, []);
+  const eligible = useSyncExternalStore(
+    subscribeNever,
+    readEligible,
+    readIneligible,
+  );
+  // The click, not the device: `readEligible` would answer this too, but only
+  // on the next render it happens to get.
+  const [dismissed, setDismissed] = useState(false);
 
   function dismiss() {
-    setShow(false);
+    setDismissed(true);
     try {
       localStorage.setItem(DISMISSED, "1");
     } catch {}
   }
 
-  if (!show) return null;
+  if (!eligible || dismissed) return null;
 
   return (
     <div className="bg-card text-card-foreground flex items-start gap-3 rounded-lg border p-3 text-sm">

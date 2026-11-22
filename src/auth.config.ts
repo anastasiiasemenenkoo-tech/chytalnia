@@ -7,6 +7,11 @@ const PROTECTED_PREFIXES = [
   "/duels",
   "/readers",
   "/settings",
+  // `/year` is the reader's own year in review. Leaving it off meant a
+  // signed-out visit reached the page, which redirects itself — losing the
+  // `next` parameter, so signing in dropped them on the dashboard instead
+  // of where they were going. `/y/<token>` is the public one and stays open.
+  "/year",
 ];
 const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 

@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 
 import { settleDuelsForFinishedBook } from "@/actions/duels";
 import { getDictionary } from "@/i18n";
+import { firstMessage } from "@/i18n/validation";
 import { prisma } from "@/lib/db";
 import { findBooks, type OpenLibraryHit } from "@/lib/openlibrary";
 import { requireCurrentUser } from "@/lib/session";
@@ -72,10 +73,11 @@ export async function manualAddBook(formData: FormData): Promise<ActionResult> {
     shelf: formData.get("shelf"),
   });
   if (!parsed.success) {
-    const issues = parsed.error.flatten().fieldErrors;
-    const first =
-      issues.title?.[0] ?? issues.author?.[0] ?? issues.shelf?.[0] ?? "Invalid input.";
-    return { ok: false, error: first };
+    const dict = await getDictionary();
+    return {
+      ok: false,
+      error: firstMessage(parsed.error, dict, ["title", "author", "shelf"]),
+    };
   }
 
   const { title, author, shelf } = parsed.data;
@@ -102,13 +104,19 @@ export async function moveBookToShelf(formData: FormData): Promise<ActionResult>
 
   const existing = await prisma.userBook.findUnique({
     where: { id: parsed.data.userBookId },
-    select: { userId: true, bookId: true },
+    select: { userId: true, bookId: true, finishedAt: true },
   });
   if (!existing || existing.userId !== user.id) {
     { const dict = await getDictionary(); return { ok: false, error: dict.books.notFound }; }
   }
 
-  const finishedAt = parsed.data.shelf === "READ" ? new Date() : null;
+  // Shelving a book as READ that already carries a finish date keeps it:
+  // picking READ a second time, or coming back after an import, shouldn't
+  // rewrite the year it was actually read in.
+  const finishedAt =
+    parsed.data.shelf === "READ"
+      ? (existing.finishedAt ?? new Date())
+      : null;
   await prisma.userBook.update({
     where: { id: parsed.data.userBookId },
     data: { shelf: parsed.data.shelf, finishedAt },
@@ -157,13 +165,11 @@ export async function updateReadingProgress(
     totalPages: formData.get("totalPages"),
   });
   if (!parsed.success) {
-    const issues = parsed.error.flatten();
-    const first =
-      issues.fieldErrors.pagesRead?.[0] ??
-      issues.fieldErrors.totalPages?.[0] ??
-      issues.formErrors[0] ??
-      "Invalid progress values.";
-    return { ok: false, error: first };
+    const dict = await getDictionary();
+    return {
+      ok: false,
+      error: firstMessage(parsed.error, dict, ["pagesRead", "totalPages"]),
+    };
   }
 
   const existing = await prisma.userBook.findUnique({
@@ -268,10 +274,11 @@ export async function updateReviewAndRating(
     review: formData.get("review") ?? "",
   });
   if (!parsed.success) {
-    const issues = parsed.error.flatten().fieldErrors;
-    const first =
-      issues.rating?.[0] ?? issues.review?.[0] ?? "Invalid review.";
-    return { ok: false, error: first };
+    const dict = await getDictionary();
+    return {
+      ok: false,
+      error: firstMessage(parsed.error, dict, ["rating", "review"]),
+    };
   }
 
   if (!(await assertOwnsUserBook(parsed.data.userBookId, user.id))) {
@@ -304,10 +311,8 @@ export async function updateNotes(formData: FormData): Promise<ActionResult> {
     notes: formData.get("notes") ?? "",
   });
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: parsed.error.flatten().fieldErrors.notes?.[0] ?? "Invalid notes.",
-    };
+    const dict = await getDictionary();
+    return { ok: false, error: firstMessage(parsed.error, dict, ["notes"]) };
   }
 
   if (!(await assertOwnsUserBook(parsed.data.userBookId, user.id))) {

@@ -1,7 +1,11 @@
 import { z } from "zod";
 
-// Auth validation messages are emitted as keys, not prose: the server action
-// swaps them for the user's locale via dict.auth.validation before rendering.
+// Validation messages are emitted as keys, not prose: the server action swaps
+// them for the user's locale before rendering — auth messages via
+// dict.auth.validation, the rest via dict.validation (see
+// `@/i18n/validation`). A field whose message can reach the screen needs an
+// explicit key: Zod's own default ("Too big: expected string to have <=500
+// characters") is English, and untranslatable.
 // Letters (any alphabet), spaces, apostrophes and hyphens — no digits.
 const NAME_PATTERN = /^[\p{L}][\p{L}\s'’-]*$/u;
 
@@ -46,25 +50,48 @@ export const ResetPasswordSchema = z
     path: ["passwordConfirm"],
   });
 
-export const ShelfEnum = z.enum([
-  "WANT_TO_READ",
-  "READING",
-  "READ",
-  "ABANDONED",
-]);
+/**
+ * A URL that ends up in the page — an `href` or an `<img src>` — with its
+ * protocol checked rather than assumed. Zod's `.url()` and `new URL()` both
+ * take `javascript:` and `data:`.
+ */
+function isHttpUrl(value: string): boolean {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/** A cover is fetched by the browser, so the same rule applies to it. */
+const CoverUrl = z
+  .string()
+  .trim()
+  .max(1000)
+  .refine(isHttpUrl, { error: "coverUrlInvalid" })
+  .optional()
+  .or(z.literal(""));
+
+export const ShelfEnum = z.enum(
+  ["WANT_TO_READ", "READING", "READ", "ABANDONED"],
+  // Only a crafted request gets here — the UI only ever sends these four —
+  // but without a key it answers in Zod's English.
+  "shelfInvalid",
+);
 export type ShelfValue = z.infer<typeof ShelfEnum>;
 
 export const AddBookSchema = z.object({
   olid: z.string().trim().min(1).max(120),
   title: z.string().trim().min(1).max(300),
   author: z.string().trim().min(1).max(300),
-  coverUrl: z.string().trim().url().optional().or(z.literal("")),
+  coverUrl: CoverUrl,
   shelf: ShelfEnum,
 });
 
 export const ManualAddBookSchema = z.object({
-  title: z.string().trim().min(1, "Title is required.").max(300),
-  author: z.string().trim().min(1, "Author is required.").max(300),
+  title: z.string().trim().min(1, "titleRequired").max(300, "titleTooLong"),
+  author: z.string().trim().min(1, "authorRequired").max(300, "authorTooLong"),
   shelf: ShelfEnum,
 });
 
@@ -78,8 +105,17 @@ export const RemoveBookSchema = z.object({
 });
 
 export const CreateClubSchema = z.object({
-  name: z.string().trim().min(2, "Name must be at least 2 characters.").max(80),
-  description: z.string().trim().max(500).optional().or(z.literal("")),
+  name: z
+    .string()
+    .trim()
+    .min(2, "clubNameTooShort")
+    .max(80, "clubNameTooLong"),
+  description: z
+    .string()
+    .trim()
+    .max(500, "clubDescriptionTooLong")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const ClubIdSchema = z.object({
@@ -106,7 +142,7 @@ export const AddClubBookSchema = z.object({
   olid: z.string().trim().min(1).max(120),
   title: z.string().trim().min(1).max(300),
   author: z.string().trim().min(1).max(300),
-  coverUrl: z.string().trim().url().optional().or(z.literal("")),
+  coverUrl: CoverUrl,
 });
 
 /**
@@ -118,17 +154,7 @@ const MeetingUrl = z
   .string()
   .trim()
   .max(500)
-  .refine(
-    (value) => {
-      try {
-        const { protocol } = new URL(value);
-        return protocol === "http:" || protocol === "https:";
-      } catch {
-        return false;
-      }
-    },
-    { message: "meetingUrlInvalid" },
-  )
+  .refine(isHttpUrl, { message: "meetingUrlInvalid" })
   .or(z.literal(""));
 
 export const EditClubSchema = CreateClubSchema.extend({
@@ -167,11 +193,19 @@ export const ClubMemberSchema = z.object({
 export const UpdateProgressSchema = z
   .object({
     userBookId: z.string().trim().min(1),
-    pagesRead: z.coerce.number().int().min(0).max(100000),
-    totalPages: z.coerce.number().int().min(1).max(100000),
+    pagesRead: z.coerce
+      .number("pagesReadRange")
+      .int("pagesReadRange")
+      .min(0, "pagesReadRange")
+      .max(100000, "pagesReadRange"),
+    totalPages: z.coerce
+      .number("totalPagesRange")
+      .int("totalPagesRange")
+      .min(1, "totalPagesRange")
+      .max(100000, "totalPagesRange"),
   })
   .refine((d) => d.pagesRead <= d.totalPages, {
-    error: "Pages read can't exceed total pages.",
+    error: "pagesExceedTotal",
     path: ["pagesRead"],
   });
 
@@ -186,13 +220,27 @@ export const ClearRatingSchema = z.object({
 
 export const ReviewSchema = z.object({
   userBookId: z.string().trim().min(1),
-  rating: z.coerce.number().int().min(1).max(5),
-  review: z.string().trim().max(2000).optional().or(z.literal("")),
+  rating: z.coerce
+    .number("ratingInvalid")
+    .int("ratingInvalid")
+    .min(1, "ratingInvalid")
+    .max(5, "ratingInvalid"),
+  review: z
+    .string()
+    .trim()
+    .max(2000, "reviewTooLong")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const NotesSchema = z.object({
   userBookId: z.string().trim().min(1),
-  notes: z.string().trim().max(4000).optional().or(z.literal("")),
+  notes: z
+    .string()
+    .trim()
+    .max(4000, "notesTooLong")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const YearlyGoalSchema = z.object({
@@ -201,7 +249,11 @@ export const YearlyGoalSchema = z.object({
 
 export const ClubCommentSchema = z.object({
   clubId: z.string().trim().min(1),
-  body: z.string().trim().min(1, "Write something first.").max(2000),
+  body: z
+    .string()
+    .trim()
+    .min(1, "commentEmpty")
+    .max(2000, "commentTooLong"),
   parentId: z.string().trim().min(1).optional().or(z.literal("")),
 });
 
@@ -210,13 +262,28 @@ export const DeleteClubCommentSchema = z.object({
   commentId: z.string().trim().min(1),
 });
 
+/**
+ * A date the form left empty is "", and that is allowed. Anything else has to
+ * be a date Postgres will actually take: `new Date("whenever")` is an Invalid
+ * Date, which Prisma rejects at the driver — a crash page where a sentence
+ * belongs.
+ */
+const ScheduleDate = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || !Number.isNaN(new Date(v).getTime()), {
+    error: "datesInvalid",
+  })
+  .optional()
+  .or(z.literal(""));
+
 export const ClubScheduleSchema = z
   .object({
     clubId: z.string().trim().min(1),
-    startDate: z.string().trim().optional().or(z.literal("")),
-    dueDate: z.string().trim().optional().or(z.literal("")),
+    startDate: ScheduleDate,
+    dueDate: ScheduleDate,
   })
   .refine(
     (d) => !d.startDate || !d.dueDate || new Date(d.dueDate) >= new Date(d.startDate),
-    { error: "Due date can't be before the start date.", path: ["dueDate"] },
+    { error: "dueBeforeStart", path: ["dueDate"] },
   );
