@@ -7,9 +7,17 @@ import bcrypt from "bcryptjs";
 
 import { signIn, signOut } from "@/auth";
 import { getDictionary } from "@/i18n";
+import { interpolate } from "@/i18n/interpolate";
 import { sendEmail } from "@/lib/mailer";
 import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
+import {
+  callerAddress,
+  consume,
+  forgive,
+  limits,
+  peek,
+} from "@/lib/rate-limit";
 import { safePath } from "@/lib/safe-path";
 import { requireCurrentUser } from "@/lib/session";
 import { createToken, hashToken, TOKEN_TTL_MS } from "@/lib/tokens";
@@ -97,6 +105,22 @@ export async function signupAction(
 
   const dict = await getDictionary();
 
+  // Counted before the row is written: an open sign-up form is how a
+  // database fills with accounts nobody asked for.
+  const gate = await consume(limits.signUp(await callerAddress()));
+  if (!gate.ok) {
+    return {
+      errors: {
+        _form: [
+          interpolate(dict.auth.tooManySignups, {
+            minutes: gate.retryAfterMinutes,
+          }),
+        ],
+      },
+      values,
+    };
+  }
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return { errors: { email: [dict.auth.emailTaken] }, values };
@@ -151,6 +175,25 @@ export async function loginAction(
     };
   }
 
+  // Asked, not counted: only a wrong password counts against someone, so a
+  // reader who gets it right on the fourth try is no closer to a locked door
+  // than one who gets it right on the first.
+  const attempt = limits.signIn(parsed.data.email, await callerAddress());
+  const gate = await peek(attempt);
+  if (!gate.ok) {
+    const dict = await getDictionary();
+    return {
+      errors: {
+        _form: [
+          interpolate(dict.auth.tooManyAttempts, {
+            minutes: gate.retryAfterMinutes,
+          }),
+        ],
+      },
+      values,
+    };
+  }
+
   try {
     await signIn("credentials", {
       email: parsed.data.email,
@@ -159,9 +202,15 @@ export async function loginAction(
     });
   } catch (error) {
     if (error instanceof AuthError) {
+      await consume(attempt);
       const dict = await getDictionary();
+      // Still says nothing about which half was wrong, or whether the
+      // address is one this app knows.
       return { errors: { _form: [dict.auth.invalidCreds] }, values };
     }
+    // A success leaves through here too — `signIn` redirects by throwing —
+    // so the slate is wiped on the way out.
+    await forgive(attempt);
     throw error;
   }
   return undefined;
@@ -200,6 +249,26 @@ export async function requestPasswordResetAction(
   }
 
   const dict = await getDictionary();
+
+  // Every one of these sends a letter, so the ceiling is also this app's
+  // email quota — and the form is otherwise a way to have it send mail to
+  // somebody else's address, over and over, at this app's expense.
+  const gate = await consume(
+    limits.passwordReset(parsed.data.email, await callerAddress()),
+  );
+  if (!gate.ok) {
+    return {
+      errors: {
+        email: [
+          interpolate(dict.auth.tooManyResets, {
+            minutes: gate.retryAfterMinutes,
+          }),
+        ],
+      },
+      values: { email: parsed.data.email },
+    };
+  }
+
   const user = await prisma.user.findUnique({
     where: { email: parsed.data.email },
   });
@@ -266,6 +335,25 @@ export async function resetPasswordAction(
   }
 
   const dict = await getDictionary();
+
+  // The token is 32 random bytes, so this is not about guessing it — it is
+  // about not letting anyone hash a few million candidates against the
+  // database for free.
+  const gate = await consume(
+    limits.passwordResetSubmit(await callerAddress()),
+  );
+  if (!gate.ok) {
+    return {
+      errors: {
+        _form: [
+          interpolate(dict.auth.tooManyAttempts, {
+            minutes: gate.retryAfterMinutes,
+          }),
+        ],
+      },
+    };
+  }
+
   const resetToken = await prisma.passwordResetToken.findUnique({
     where: { tokenHash: hashToken(parsed.data.token) },
   });

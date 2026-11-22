@@ -8,6 +8,7 @@ import { interpolate } from "@/i18n/interpolate";
 import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/mailer";
+import { consume, limits } from "@/lib/rate-limit";
 import { requireCurrentUser } from "@/lib/session";
 import { createToken, hashToken, TOKEN_TTL_MS } from "@/lib/tokens";
 import {
@@ -49,6 +50,19 @@ export async function updateProfile(
   const emailChanged = newEmail !== user.email.toLowerCase();
 
   if (emailChanged) {
+    // Two letters go out per change — one to the new address, one telling
+    // the old — so this is the one path a signed-in reader can use to send
+    // mail to an address of their choosing.
+    const gate = await consume(limits.emailChange(user.id));
+    if (!gate.ok) {
+      return {
+        ok: false,
+        error: interpolate(dict.account.tooManyEmailChanges, {
+          minutes: gate.retryAfterMinutes,
+        }),
+      };
+    }
+
     const taken = await prisma.user.findUnique({
       where: { email: newEmail },
       select: { id: true },

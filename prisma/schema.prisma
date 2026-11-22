@@ -241,3 +241,17 @@ model ClubComment {
 
   @@index([clubId, createdAt])
 }
+
+/// One fixed window of attempts for one key — "login:someone@example.com",
+/// "reset:ip:1.2.3.4". Counting in Postgres and not in memory is deliberate:
+/// this app runs as serverless functions, so a process-local counter is one
+/// counter per instance, reset whenever the platform feels like it, which is
+/// no limit at all. One row per key, incremented by an atomic upsert, and
+/// expired rows are swept opportunistically.
+model RateLimit {
+  key       String   @id
+  count     Int      @default(0)
+  windowEnd DateTime
+
+  @@index([windowEnd])
+}

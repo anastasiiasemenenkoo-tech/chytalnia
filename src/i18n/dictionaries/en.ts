@@ -165,6 +165,8 @@ export const en: Dictionary = {
     saving: "Saving…",
     saved: "Saved.",
     saveFailed: "Couldn't save that. Try again.",
+    tooManyEmailChanges:
+      "Too many address changes at once. Try again in {minutes} min.",
     emailTaken: "Another reader already uses that address.",
     emailSendFailed:
       "That letter didn't get through. Check the address and try again.",
@@ -289,6 +291,12 @@ export const en: Dictionary = {
     newHere: "New here?",
     signupLink: "Create an account",
     invalidCreds: "Email or password doesn't match. One of the two is off.",
+    tooManyAttempts:
+      "Too many sign-in attempts. Take {minutes} min and we'll be here.",
+    tooManySignups:
+      "Too many sign-ups from this device. Try again in {minutes} min.",
+    tooManyResets:
+      "That's as many letters as we can send. Look for them in your inbox, or try again in {minutes} min.",
     emailTaken: "This email is already on the register. Sign in instead?",
     couldNotSignIn:
       "Account created, but we couldn't let you in. Try signing in.",
