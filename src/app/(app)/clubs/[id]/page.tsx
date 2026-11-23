@@ -83,7 +83,11 @@ export default async function ClubDetailPage({
   const myBooks = isOwner
     ? await prisma.userBook.findMany({
         where: { userId: user.id },
-        include: {
+        // Three fields of the book and nothing else. These are the owner's
+        // own rows, so their notes would be no leak — but reading the whole
+        // shelf, reviews and all, to fill a dropdown is a round trip nobody
+        // asked for.
+        select: {
           book: { select: { id: true, title: true, author: true } },
         },
         orderBy: { addedAt: "desc" },

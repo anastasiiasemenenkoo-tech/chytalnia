@@ -62,7 +62,19 @@ export async function ClubReviews({
           : []),
       ],
     },
-    include: { user: { select: { id: true, name: true } } },
+    // Named columns, not `include`. `include` leaves the scalar fields at
+    // their default, which is **all of them** — so this was reading every
+    // club member's private `notes` on the club's book in order to print
+    // their rating. Nothing rendered them, but the privacy policy promises
+    // that notes reach nobody else, and one `<Something review={r} />` would
+    // have put them in the payload for every member to read.
+    select: {
+      id: true,
+      rating: true,
+      review: true,
+      reviewUpdatedAt: true,
+      user: { select: { id: true, name: true } },
+    },
     orderBy: [{ reviewUpdatedAt: "desc" }, { ratedAt: "desc" }],
   });
 
