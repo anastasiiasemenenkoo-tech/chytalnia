@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { BookCover } from "@/components/books/book-cover";
+import { StarRating } from "@/components/books/star-rating";
+import { Spine } from "@/components/decor/spine";
 import { FollowButton } from "@/components/readers/follow-button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -106,11 +107,17 @@ export default async function ReadersPage() {
           ) : (
             <ul className="space-y-4">
               {feed.map((entry) => (
-                <li key={entry.id} className="flex gap-3">
-                  <BookCover
-                    src={entry.book.coverUrl}
-                    alt={entry.book.title}
-                    className="w-10 shrink-0"
+                <li key={entry.id} className="flex items-stretch gap-3">
+                  {/* A finished book is back on the shelf, spine out — the
+                      same way the club's reading history shows one. The
+                      cover that used to sit here was an empty grey box for
+                      most books, which made a page about finished reading
+                      look like a page about missing pictures. */}
+                  <Spine
+                    title={entry.book.title}
+                    label={`${entry.book.title} — ${entry.book.author}`}
+                    silent
+                    className="w-7 rounded-t-[3px]"
                   />
                   <div className="min-w-0 flex-1 space-y-1">
                     <p className="text-sm">
@@ -131,6 +138,13 @@ export default async function ReadersPage() {
                         ? ` · ${dateFormat.format(entry.finishedAt)}`
                         : ""}
                     </p>
+                    {/* The rating was being fetched and thrown away. It is
+                        the one thing a reader actually wants from somebody
+                        else's finished book — and it gives the row the third
+                        line the spine beside it needs to be readable. */}
+                    {entry.rating != null && (
+                      <StarRating rating={entry.rating} readOnly size="sm" />
+                    )}
                   </div>
                 </li>
               ))}

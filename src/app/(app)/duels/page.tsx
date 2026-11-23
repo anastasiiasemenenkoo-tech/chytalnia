@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Swords, Trophy } from "lucide-react";
 
-import { BookCover } from "@/components/books/book-cover";
+import { Spine } from "@/components/decor/spine";
 import {
   DuelCancelButton,
   DuelResponseButtons,
@@ -60,34 +60,42 @@ export default async function DuelsPage() {
     const iWon = duel.winnerId === user.id;
 
     return (
-      <Card>
-        <CardContent className="flex gap-4">
-          <div className="w-14 shrink-0">
-            <BookCover src={duel.book.coverUrl} alt={duel.book.title} />
+      // The book the two of them are racing through, standing against the
+      // card's edge — the same shape a club card uses, because it is the
+      // same fact: one book, and not enough room to lay it flat. It replaces
+      // a cover thumbnail that was an empty grey box for most books, since
+      // Open Library has a picture for very few of them.
+      <Card className="flex-row gap-0 py-0">
+        <Spine
+          title={duel.book.title}
+          label={`${duel.book.title} — ${duel.book.author}`}
+          silent
+          className="w-8"
+        />
+        <CardContent className="flex min-w-0 flex-1 flex-col gap-2 p-4">
+          <div className="min-w-0">
+            <p className="font-heading truncate text-sm leading-snug font-medium">
+              {duel.book.title}
+            </p>
+            <p className="text-muted-foreground truncate text-xs">
+              {dict.duels.versus} {displayName(rival, dict.common.unnamedReader)}
+            </p>
+            <Link
+              href={`/clubs/${duel.club.id}`}
+              className="text-muted-foreground block truncate text-xs hover:underline"
+            >
+              {duel.club.name}
+            </Link>
           </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{duel.book.title}</p>
-              <p className="text-muted-foreground truncate text-xs">
-                {dict.duels.versus} {displayName(rival, dict.common.unnamedReader)}
-              </p>
-              <Link
-                href={`/clubs/${duel.club.id}`}
-                className="text-muted-foreground truncate text-xs hover:underline"
-              >
-                {duel.club.name}
-              </Link>
+          {duel.status === "FINISHED" && (
+            <div>
+              <Badge variant={iWon ? "default" : "secondary"}>
+                {iWon && <Trophy className="mr-1 h-3 w-3" />}
+                {iWon ? dict.duels.youWon : dict.duels.youLost}
+              </Badge>
             </div>
-            {duel.status === "FINISHED" && (
-              <div>
-                <Badge variant={iWon ? "default" : "secondary"}>
-                  {iWon && <Trophy className="mr-1 h-3 w-3" />}
-                  {iWon ? dict.duels.youWon : dict.duels.youLost}
-                </Badge>
-              </div>
-            )}
-            {footer}
-          </div>
+          )}
+          {footer}
         </CardContent>
       </Card>
     );

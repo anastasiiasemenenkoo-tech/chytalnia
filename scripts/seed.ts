@@ -20,6 +20,14 @@ import { prisma } from "../src/lib/db";
 
 const EMAIL = "seed@chytalnia.local";
 const NAME = "Тестова Читачка";
+/**
+ * A second reader, because half the app is about other people and none of it
+ * can be looked at alone. Without her `/readers` is two empty boxes and
+ * `/duels` is an empty state — the two pages nobody could check.
+ */
+const FRIEND_EMAIL = "seed-friend@chytalnia.local";
+const FRIEND_NAME = "Оксана Сусідка";
+const CLUB_NAME = "Клуб тестової читальні";
 /** Marks every book this script owns, so cleaning up is exact. */
 const OLID_PREFIX = "seed:";
 
@@ -50,7 +58,9 @@ const LIBRARY: Seeded[] = [
   { title: "Беззбройний", author: "Артем Чех", cover: null, pages: 208, shelf: "READ", added: "2026-02-26", finished: "2026-03-03", rating: 4 },
   { title: "Інтернат", author: "Сергій Жадан", cover: null, pages: 336, shelf: "READ", added: "2026-03-20", finished: "2026-03-28", rating: 5, review: "Три дні, за які не можна сховатися." },
   { title: "Ворошиловград", author: "Сергій Жадан", cover: null, pages: 442, shelf: "READ", added: "2026-04-01", finished: "2026-04-15", rating: 4 },
-  { title: "The Hobbit", author: "J.R.R. Tolkien", cover: 6569314, pages: 366, shelf: "READ", added: "2026-05-08", finished: "2026-05-21", rating: 4 },
+  // No cover id: the one that used to be here rendered somebody else's book
+  // entirely, and test data that lies is worse than test data with a gap.
+  { title: "The Hobbit", author: "J.R.R. Tolkien", cover: null, pages: 366, shelf: "READ", added: "2026-05-08", finished: "2026-05-21", rating: 4 },
   { title: "Dune", author: "Frank Herbert", cover: null, pages: 658, shelf: "READ", added: "2026-05-25", finished: "2026-06-30", rating: 5, notes: "Найтовща цього року." },
   { title: "Piranesi", author: "Susanna Clarke", cover: null, pages: 245, shelf: "READ", added: "2026-08-06", finished: "2026-08-18", rating: 5 },
   { title: "Klara and the Sun", author: "Kazuo Ishiguro", cover: null, pages: 303, shelf: "READ", added: "2026-08-25", finished: "2026-09-09", rating: 3 },
@@ -72,21 +82,28 @@ const LIBRARY: Seeded[] = [
 const utc = (date: string) => new Date(`${date}T00:00:00.000Z`);
 
 async function clean() {
-  const user = await prisma.user.findUnique({
-    where: { email: EMAIL },
+  const readers = await prisma.user.findMany({
+    where: { email: { in: [EMAIL, FRIEND_EMAIL] } },
     select: { id: true },
   });
-  if (user) {
-    await prisma.userBook.deleteMany({ where: { userId: user.id } });
-    await prisma.user.delete({ where: { id: user.id } });
+  const ids = readers.map((r) => r.id);
+
+  if (ids.length > 0) {
+    // Clubs first: `BookClub.owner` is a required relation with no
+    // `onDelete`, so Postgres refuses to delete a reader who still owns one.
+    // Everything else — shelves, memberships, duels, follows — cascades off
+    // the reader.
+    await prisma.bookClub.deleteMany({ where: { ownerId: { in: ids } } });
+    await prisma.user.deleteMany({ where: { id: { in: ids } } });
   }
+
   const books = await prisma.book.deleteMany({
     where: { olid: { startsWith: OLID_PREFIX } },
   });
   console.log(
-    user
-      ? `Прибрано: читачку ${EMAIL} і ${books.count} книжок.`
-      : `Читачки ${EMAIL} не було. Книжок прибрано: ${books.count}.`,
+    ids.length > 0
+      ? `Прибрано: читачок — ${ids.length}, книжок — ${books.count}.`
+      : `Тестових читачок не було. Книжок прибрано: ${books.count}.`,
   );
 }
 
@@ -150,8 +167,145 @@ async function seed() {
     })),
   });
 
+  await seedCompany(user.id, idByOlid, await bcrypt.hash(password, 10));
+
   console.log(`Готово. Читачка ${EMAIL}, книжок: ${LIBRARY.length}.`);
-  console.log("Пароль — той, що в SEED_PASSWORD у .env.");
+  console.log(`Поруч: ${FRIEND_NAME} (${FRIEND_EMAIL}), клуб і чотири дуелі.`);
+  console.log("Пароль — той, що в SEED_PASSWORD у .env, в обох.");
+}
+
+/**
+ * The other reader, and everything that needs two people to exist: a mutual
+ * follow (so the "friend" badge has somewhere to show), a shelf of finished
+ * books (so `/readers` has a feed), a club they are both in, and one duel in
+ * each of the four states `/duels` lays out — waiting on me, waiting on her,
+ * running, and settled.
+ */
+async function seedCompany(
+  meId: string,
+  idByOlid: Map<string, string>,
+  hashedPassword: string,
+) {
+  const book = (n: number) => idByOlid.get(`${OLID_PREFIX}${n}`)!;
+
+  const her = await prisma.user.create({
+    data: {
+      email: FRIEND_EMAIL,
+      name: FRIEND_NAME,
+      hashedPassword,
+      yearlyGoal: 20,
+    },
+    select: { id: true },
+  });
+
+  // Her own shelf: finished recently, so the feed is in a readable order and
+  // the dates are not all the same day.
+  const hers: Array<{ n: number; finished: string; rating: number }> = [
+    { n: 7, finished: "2026-11-21", rating: 5 },
+    { n: 5, finished: "2026-11-14", rating: 4 },
+    { n: 9, finished: "2026-11-02", rating: 5 },
+    { n: 13, finished: "2026-10-18", rating: 3 },
+  ];
+  await prisma.userBook.createMany({
+    data: hers.map((h) => ({
+      userId: her.id,
+      bookId: book(h.n),
+      shelf: "READ" as const,
+      addedAt: utc(h.finished),
+      finishedAt: utc(h.finished),
+      rating: h.rating,
+      ratedAt: utc(h.finished),
+    })),
+  });
+  // One in progress, so the club's progress bar has two readers on it.
+  await prisma.userBook.create({
+    data: {
+      userId: her.id,
+      bookId: book(16),
+      shelf: "READING",
+      addedAt: utc("2026-11-10"),
+      totalPages: 464,
+      pagesRead: 300,
+      progressUpdated: new Date(),
+    },
+  });
+
+  // Both ways, so the pair reads as mutual and the badge appears.
+  await prisma.follow.createMany({
+    data: [
+      { followerId: meId, followingId: her.id },
+      { followerId: her.id, followingId: meId },
+    ],
+  });
+
+  const club = await prisma.bookClub.create({
+    data: {
+      name: CLUB_NAME,
+      description:
+        "Клуб, який існує тільки для того, щоб було на що дивитися під час перевірки.",
+      ownerId: meId,
+      currentlyReadingBookId: book(16),
+      memberships: {
+        create: [
+          { userId: meId, role: "OWNER" },
+          { userId: her.id, role: "MEMBER" },
+        ],
+      },
+      readingHistory: {
+        create: [
+          { bookId: book(16), startDate: utc("2026-11-06") },
+          {
+            bookId: book(7),
+            startDate: utc("2026-09-01"),
+            endedAt: utc("2026-10-20"),
+          },
+        ],
+      },
+    },
+    select: { id: true },
+  });
+
+  await prisma.readingDuel.createMany({
+    data: [
+      // Waiting on me to answer.
+      {
+        clubId: club.id,
+        bookId: book(16),
+        challengerId: her.id,
+        opponentId: meId,
+        status: "PENDING",
+      },
+      // Waiting on her.
+      {
+        clubId: club.id,
+        bookId: book(17),
+        challengerId: meId,
+        opponentId: her.id,
+        status: "PENDING",
+      },
+      // Running.
+      {
+        clubId: club.id,
+        bookId: book(18),
+        challengerId: meId,
+        opponentId: her.id,
+        status: "ACTIVE",
+        respondedAt: utc("2026-11-12"),
+      },
+      // Settled, and I lost it — a page that only ever shows wins is a page
+      // whose losing state nobody has looked at.
+      {
+        clubId: club.id,
+        bookId: book(7),
+        challengerId: meId,
+        opponentId: her.id,
+        status: "FINISHED",
+        respondedAt: utc("2026-10-02"),
+        winnerId: her.id,
+        wonAt: utc("2026-10-20"),
+      },
+    ],
+  });
 }
 
 const main = process.argv.includes("--clean") ? clean : seed;
