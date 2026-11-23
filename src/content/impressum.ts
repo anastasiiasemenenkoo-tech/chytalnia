@@ -10,17 +10,26 @@ import type { Locale } from "@/i18n";
  * word a German reader (and a German authority) looks for, and translating it
  * would make the page harder to recognise, not easier.
  *
- * **The four `todo` lines have to be filled in before this is published.**
- * They are left empty rather than guessed at: an Impressum with the wrong
- * address is worse than none, and nobody but the operator knows what belongs
- * there.
+ * The name stays in its Latin spelling in both locales: it is a legal
+ * identifier, the one a letter would be addressed to, not a word to
+ * translate.
+ *
+ * **One blank is left, and it is load-bearing: the house number.** § 5 wants
+ * a *ladungsfähige* address — one a court summons could be delivered to —
+ * and a street without a number is not one. It is marked rather than guessed
+ * at, because an Impressum with an invented address is worse than an
+ * Impressum that admits it is unfinished.
  */
-const OPERATOR_PLACEHOLDER = "…";
+const OPERATOR_NAME = "Anastasiia Semenenko";
+const OPERATOR_EMAIL = "chytalnia.space@gmail.com";
+/** Street, postcode and town as given; the number is still missing. */
+const OPERATOR_STREET = "Karl-Marx-Straße";
+const OPERATOR_TOWN = "02681 Wilthen";
 
 export const impressum: Record<Locale, LegalDocument> = {
   uk: {
     title: "Impressum",
-    updated: "2026-11-22",
+    updated: "2026-11-23",
     lead: "Відомості про того, хто відповідає за цей сайт, за § 5 DDG.",
     sections: [
       {
@@ -28,16 +37,19 @@ export const impressum: Record<Locale, LegalDocument> = {
         heading: "Відповідальна особа",
         blocks: [
           {
-            kind: "todo",
-            text: `Імʼя та прізвище: ${OPERATOR_PLACEHOLDER}`,
+            kind: "pairs",
+            pairs: [
+              { term: "Імʼя", detail: OPERATOR_NAME },
+              {
+                term: "Адреса",
+                detail: `${OPERATOR_STREET}, ${OPERATOR_TOWN}, Німеччина`,
+              },
+              { term: "Електронна пошта", detail: OPERATOR_EMAIL },
+            ],
           },
           {
             kind: "todo",
-            text: `Адреса (вулиця, номер, поштовий індекс, місто, країна): ${OPERATOR_PLACEHOLDER}`,
-          },
-          {
-            kind: "todo",
-            text: `Електронна пошта для звʼязку: ${OPERATOR_PLACEHOLDER}`,
+            text: `Додати номер будинку до адреси: «${OPERATOR_STREET} __, ${OPERATOR_TOWN}». Без номера адреса не є ladungsfähig — саме цього вимагає § 5 DDG.`,
           },
           {
             kind: "text",
@@ -79,19 +91,28 @@ export const impressum: Record<Locale, LegalDocument> = {
   },
   en: {
     title: "Impressum",
-    updated: "2026-11-22",
+    updated: "2026-11-23",
     lead: "Who is responsible for this site, as § 5 DDG requires.",
     sections: [
       {
         id: "operator",
         heading: "Responsible person",
         blocks: [
-          { kind: "todo", text: `Name: ${OPERATOR_PLACEHOLDER}` },
+          {
+            kind: "pairs",
+            pairs: [
+              { term: "Name", detail: OPERATOR_NAME },
+              {
+                term: "Address",
+                detail: `${OPERATOR_STREET}, ${OPERATOR_TOWN}, Germany`,
+              },
+              { term: "Contact email", detail: OPERATOR_EMAIL },
+            ],
+          },
           {
             kind: "todo",
-            text: `Address (street, number, postcode, city, country): ${OPERATOR_PLACEHOLDER}`,
+            text: `Add the house number to the address: "${OPERATOR_STREET} __, ${OPERATOR_TOWN}". Without it the address is not one a summons could be delivered to, which is what § 5 DDG asks for.`,
           },
-          { kind: "todo", text: `Contact email: ${OPERATOR_PLACEHOLDER}` },
           {
             kind: "text",
             text: "Chytal'nia is a personal project, not a company. There is no register entry, VAT number or registering court, because there is no company to have one.",
