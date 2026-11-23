@@ -14,16 +14,14 @@ import type { Locale } from "@/i18n";
  * identifier, the one a letter would be addressed to, not a word to
  * translate.
  *
- * **One blank is left, and it is load-bearing: the house number.** § 5 wants
- * a *ladungsfähige* address — one a court summons could be delivered to —
- * and a street without a number is not one. It is marked rather than guessed
- * at, because an Impressum with an invented address is worse than an
- * Impressum that admits it is unfinished.
+ * The address is complete, and has to stay that way: § 5 wants a
+ * *ladungsfähige* one — an address a court summons could actually be
+ * delivered to — so the house number is as load-bearing as the street.
+ * `legal.test.ts` fails if a `todo` ever reappears on this page.
  */
 const OPERATOR_NAME = "Anastasiia Semenenko";
 const OPERATOR_EMAIL = "chytalnia.space@gmail.com";
-/** Street, postcode and town as given; the number is still missing. */
-const OPERATOR_STREET = "Karl-Marx-Straße";
+const OPERATOR_STREET = "Karl-Marx-Straße 22";
 const OPERATOR_TOWN = "02681 Wilthen";
 
 export const impressum: Record<Locale, LegalDocument> = {
@@ -47,10 +45,7 @@ export const impressum: Record<Locale, LegalDocument> = {
               { term: "Електронна пошта", detail: OPERATOR_EMAIL },
             ],
           },
-          {
-            kind: "todo",
-            text: `Додати номер будинку до адреси: «${OPERATOR_STREET} __, ${OPERATOR_TOWN}». Без номера адреса не є ladungsfähig — саме цього вимагає § 5 DDG.`,
-          },
+
           {
             kind: "text",
             text: "Читальня — особистий проєкт, не підприємство. Реєстру, податкового номера й реєстраційного суду тут немає, бо немає й самої компанії.",
@@ -109,10 +104,7 @@ export const impressum: Record<Locale, LegalDocument> = {
               { term: "Contact email", detail: OPERATOR_EMAIL },
             ],
           },
-          {
-            kind: "todo",
-            text: `Add the house number to the address: "${OPERATOR_STREET} __, ${OPERATOR_TOWN}". Without it the address is not one a summons could be delivered to, which is what § 5 DDG asks for.`,
-          },
+
           {
             kind: "text",
             text: "Chytal'nia is a personal project, not a company. There is no register entry, VAT number or registering court, because there is no company to have one.",

@@ -97,14 +97,51 @@ describe("the privacy policy", () => {
 });
 
 describe("the impressum", () => {
-  it("still has blanks, and they are marked as such", () => {
-    // Until these are filled in, the page must say so loudly rather than
-    // looking finished.
+  // This page used to assert the opposite — that its blanks were still
+  // marked — while the name and address were missing. They are filled in
+  // now, so the test turns around: the page must stay finished.
+  it("has nothing left to fill in", () => {
     for (const locale of ["uk", "en"] as const) {
       const todos = impressum[locale].sections
         .flatMap((s) => s.blocks)
         .filter((b) => b.kind === "todo");
-      expect(todos.length).toBeGreaterThan(0);
+      expect(todos, `${locale} impressum`).toEqual([]);
+    }
+  });
+
+  it("gives an address a summons could be delivered to", () => {
+    // § 5 DDG wants a *ladungsfähige* address, and a street with no house
+    // number is not one. Checking for a digit is crude, and it is exactly
+    // the mistake that was live for a day.
+    for (const locale of ["uk", "en"] as const) {
+      const address = impressum[locale].sections
+        .flatMap((s) => s.blocks)
+        .flatMap((b) => (b.kind === "pairs" ? b.pairs : []))
+        .find((pair) => /адрес|address/i.test(pair.term));
+
+      expect(address, `${locale} impressum has no address row`).toBeDefined();
+
+      // The **street** part, before the first comma. Looking for a digit
+      // anywhere in the address is the obvious check and a useless one: the
+      // postcode is five digits, so it passes while the house number is
+      // missing. That version was written, run against the bug, and passed.
+      const street = address!.detail.split(",")[0];
+      expect(street, "the street has no house number").toMatch(/\d/);
+    }
+  });
+
+  it("names a person and a way to reach them", () => {
+    for (const locale of ["uk", "en"] as const) {
+      const pairs = impressum[locale].sections
+        .flatMap((s) => s.blocks)
+        .flatMap((b) => (b.kind === "pairs" ? b.pairs : []));
+
+      expect(pairs.length).toBeGreaterThanOrEqual(3);
+      expect(pairs.some((p) => p.detail.includes("@"))).toBe(true);
+      for (const pair of pairs) {
+        // The placeholder that used to stand in for all of these.
+        expect(pair.detail).not.toBe("…");
+      }
     }
   });
 });
