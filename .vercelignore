@@ -1,0 +1,4 @@
+# The iOS app. It has its own package.json and its own build (EAS), and
+# nothing in it is served by Next.js — uploading it only slows the deploy
+# and risks Vercel trying to install a second, unrelated dependency tree.
+mobile
