@@ -10,9 +10,27 @@ import Constants from "expo-constants";
  */
 const PRODUCTION = "https://dashboard-course-tau.vercel.app";
 
+/**
+ * Only a non-empty string counts as a configured address.
+ *
+ * `??` is not enough here, and the way it failed is worth writing down.
+ * `extra: { apiUrl: null }` in app.json does not reach the app as `null`:
+ * Expo builds the manifest and hands it over as `{}`, an empty object. An
+ * empty object is not nullish, so `?? fallback` kept it, and interpolating
+ * it into a template string produced "[object Object]". Every request then
+ * went to a *relative* URL, which React Native resolves against the
+ * bundle's origin — so the app quietly asked Metro on :8081 for
+ * `/api/mobile/auth/login` and showed the reader a 404 nothing could
+ * explain. Checking the type is what makes a wrong config loud instead.
+ */
+const configured = Constants.expoConfig?.extra?.apiUrl;
+
 export const API_BASE: string =
-  (Constants.expoConfig?.extra?.apiUrl as string | null | undefined) ??
-  (__DEV__ ? "http://localhost:3000" : PRODUCTION);
+  typeof configured === "string" && configured.length > 0
+    ? configured
+    : __DEV__
+      ? "http://localhost:3000"
+      : PRODUCTION;
 
 export type Shelf = "WANT_TO_READ" | "READING" | "READ" | "ABANDONED";
 

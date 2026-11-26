@@ -90,6 +90,7 @@ export default function ShelvesScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.tabsScroll}
         contentContainerStyle={styles.tabs}
       >
         {SHELVES.map((option) => {
@@ -198,7 +199,17 @@ const styles = StyleSheet.create({
   hello: { fontSize: 13, color: "#7a7268" },
   title: { fontSize: 28, fontWeight: "700", color: "#2b2420" },
   signOut: { fontSize: 15, color: "#3f6b4f", fontWeight: "600" },
-  tabs: { paddingHorizontal: 20, paddingBottom: 14, gap: 8 },
+  // A horizontal ScrollView inside a flex column grows to fill the column
+  // unless told not to: the row of shelf pills stretched to half the screen
+  // because nothing capped it. `flexGrow: 0` makes it as tall as its content,
+  // and `alignItems` keeps each pill its own height rather than the row's.
+  tabsScroll: { flexGrow: 0, flexShrink: 0 },
+  tabs: {
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+    gap: 8,
+    alignItems: "center",
+  },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,
