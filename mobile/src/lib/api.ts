@@ -36,12 +36,17 @@ export type Shelf = "WANT_TO_READ" | "READING" | "READ" | "ABANDONED";
 
 export const SHELVES: Shelf[] = ["READING", "WANT_TO_READ", "READ", "ABANDONED"];
 
-/** Ukrainian shelf names, mirroring `src/lib/shelf-labels.ts` on the server. */
+/**
+ * Shelf names, taken from the web app's own dictionary
+ * (`src/i18n/dictionaries/uk.ts`, the `shelves` block) rather than invented
+ * here. Two surfaces of one product calling the same shelf different names
+ * is the kind of difference nobody reports and everybody notices.
+ */
 export const SHELF_LABELS: Record<Shelf, string> = {
-  READING: "Читаю",
+  READING: "Читаю зараз",
   WANT_TO_READ: "Хочу прочитати",
-  READ: "Прочитано",
-  ABANDONED: "Покинуто",
+  READ: "Прочитане",
+  ABANDONED: "Недочитано",
 };
 
 export type Reader = {
@@ -125,6 +130,20 @@ async function call<T>(
   return body as T;
 }
 
+/**
+ * One book with everything on the record — including `review` and `notes`,
+ * which the shelf list does not carry. Only `/api/mobile/books/[id]`
+ * returns this shape.
+ */
+export type BookDetail = ShelfBook & {
+  progressUpdated: string | null;
+  ratedAt: string | null;
+  review: string | null;
+  reviewUpdatedAt: string | null;
+  notes: string | null;
+  notesUpdatedAt: string | null;
+};
+
 export function login(email: string, password: string) {
   return call<{ token: string; reader: Reader }>("/api/mobile/auth/login", {
     method: "POST",
@@ -142,4 +161,11 @@ export function fetchMe(token: string) {
 export function fetchBooks(token: string, shelf?: Shelf) {
   const query = shelf ? `?shelf=${shelf}` : "";
   return call<{ books: ShelfBook[] }>(`/api/mobile/books${query}`, { token });
+}
+
+export function fetchBook(token: string, id: string) {
+  return call<{ book: BookDetail }>(
+    `/api/mobile/books/${encodeURIComponent(id)}`,
+    { token },
+  );
 }

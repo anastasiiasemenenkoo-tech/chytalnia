@@ -5,13 +5,13 @@ import {
   Image,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { Redirect } from "expo-router";
+import { Redirect, router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   ApiError,
@@ -141,7 +141,14 @@ function BookRow({ item }: { item: ShelfBook }) {
       : null;
 
   return (
-    <View style={styles.row}>
+    <Pressable
+      style={styles.row}
+      // Typed routes are on, so the route literal is checked against the
+      // files in src/app — a renamed screen breaks the build, not the app.
+      onPress={() =>
+        router.push({ pathname: "/book/[id]", params: { id: item.id } })
+      }
+    >
       {item.book.coverUrl ? (
         <Image source={{ uri: item.book.coverUrl }} style={styles.cover} />
       ) : (
@@ -182,7 +189,7 @@ function BookRow({ item }: { item: ShelfBook }) {
           </View>
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
