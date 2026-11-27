@@ -9,7 +9,7 @@ import { firstMessage } from "@/i18n/validation";
 import { prisma } from "@/lib/db";
 import { findBooks, type OpenLibraryHit } from "@/lib/openlibrary";
 import { requireCurrentUser } from "@/lib/session";
-import { upsertUserBook } from "@/lib/user-books";
+import { applyReadingProgress, upsertUserBook } from "@/lib/user-books";
 import {
   AddBookSchema,
   ClearRatingSchema,
@@ -168,41 +168,28 @@ export async function updateReadingProgress(
     const dict = await getDictionary();
     return {
       ok: false,
-      error: firstMessage(parsed.error, dict, ["pagesRead", "totalPages"]),
+    // `totalPages` first, and not the other way round. Leaving the total
+    // blank fails its own range check *and* trips the "you cannot have read
+    // more pages than the book has" rule, because zero pages is fewer than
+    // whatever was typed — so asking for `pagesRead` first answered an empty
+    // field with "Прочитано більше, ніж є в книжці". Fix the length and the
+    // other complaint goes away on its own.
+      error: firstMessage(parsed.error, dict, ["totalPages", "pagesRead"]),
     };
   }
 
-  const existing = await prisma.userBook.findUnique({
-    where: { id: parsed.data.userBookId },
-    select: { userId: true, shelf: true, bookId: true },
+  // The ownership check, the promotion to the read shelf, the duels that
+  // settles and the cache invalidation all live in `applyReadingProgress`,
+  // because the phone writes progress through `/api/mobile` and has to do
+  // exactly the same things.
+  const result = await applyReadingProgress({
+    userId: user.id,
+    ...parsed.data,
   });
-  if (!existing || existing.userId !== user.id) {
-    { const dict = await getDictionary(); return { ok: false, error: dict.books.notFound }; }
+  if (!result.ok) {
+    const dict = await getDictionary();
+    return { ok: false, error: dict.books.notFound };
   }
-
-  const finished = parsed.data.pagesRead >= parsed.data.totalPages;
-
-  await prisma.userBook.update({
-    where: { id: parsed.data.userBookId },
-    data: {
-      pagesRead: parsed.data.pagesRead,
-      totalPages: parsed.data.totalPages,
-      progressUpdated: new Date(),
-      // Auto-promote to READ when finished; never auto-demote.
-      ...(finished && existing.shelf !== "READ"
-        ? { shelf: "READ", finishedAt: new Date() }
-        : {}),
-    },
-  });
-
-  if (finished && existing.shelf !== "READ") {
-    await settleDuelsForFinishedBook(user.id, existing.bookId);
-  }
-
-  revalidatePath("/books");
-  revalidatePath("/dashboard");
-  // Club page may surface this user's progress for the currently-reading book.
-  revalidatePath("/clubs", "layout");
   return { ok: true };
 }
 

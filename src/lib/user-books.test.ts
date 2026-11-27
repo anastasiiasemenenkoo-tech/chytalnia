@@ -2,16 +2,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findUnique = vi.fn();
 const upsert = vi.fn();
+const update = vi.fn();
 const settle = vi.fn();
 
 vi.mock("@/lib/db", () => ({
-  prisma: { userBook: { findUnique, upsert } },
+  prisma: { userBook: { findUnique, upsert, update } },
 }));
 vi.mock("@/actions/duels", () => ({
   settleDuelsForFinishedBook: settle,
 }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
-const { upsertUserBook } = await import("@/lib/user-books");
+const { applyReadingProgress, upsertUserBook } = await import(
+  "@/lib/user-books"
+);
 
 const args = { userId: "u1", bookId: "b1" } as const;
 
@@ -79,5 +83,115 @@ describe("upsertUserBook", () => {
     settle.mockClear();
     await upsertUserBook({ ...args, shelf: "READING" });
     expect(settle).not.toHaveBeenCalled();
+  });
+});
+
+describe("applyReadingProgress", () => {
+  const progress = {
+    userId: "u1",
+    userBookId: "ub1",
+    pagesRead: 100,
+    totalPages: 300,
+  } as const;
+
+  /** What the update was told to write. */
+  function wrote() {
+    return update.mock.calls[0][0].data as {
+      pagesRead: number;
+      totalPages: number;
+      progressUpdated: Date;
+      shelf?: string;
+      finishedAt?: Date;
+    };
+  }
+
+  beforeEach(() => {
+    findUnique.mockReset();
+    update.mockReset().mockResolvedValue({ id: "ub1" });
+    settle.mockReset();
+  });
+
+  it("will not write to another reader's row", async () => {
+    // The whole point of the function taking a `userId`. Every reader's
+    // shelves share one table, so a cuid from somewhere else would otherwise
+    // be an edit to a stranger's book — and the phone sends ids straight
+    // from a URL.
+    findUnique.mockResolvedValue({
+      userId: "someone-else",
+      shelf: "READING",
+      bookId: "b1",
+    });
+
+    const result = await applyReadingProgress(progress);
+
+    expect(result).toEqual({ ok: false, reason: "notFound" });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("answers a missing row exactly as it answers someone else's", async () => {
+    // Same answer, so a caller probing ids learns nothing about which exist.
+    findUnique.mockResolvedValue(null);
+
+    expect(await applyReadingProgress(progress)).toEqual({
+      ok: false,
+      reason: "notFound",
+    });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("saves the page count part-way through and leaves the shelf alone", async () => {
+    findUnique.mockResolvedValue({
+      userId: "u1",
+      shelf: "READING",
+      bookId: "b1",
+    });
+
+    const result = await applyReadingProgress(progress);
+
+    expect(result).toEqual({ ok: true, promoted: false });
+    expect(wrote().pagesRead).toBe(100);
+    expect(wrote().totalPages).toBe(300);
+    expect(wrote().progressUpdated).toBeInstanceOf(Date);
+    expect(wrote().shelf).toBeUndefined();
+    expect(wrote().finishedAt).toBeUndefined();
+    expect(settle).not.toHaveBeenCalled();
+  });
+
+  it("finishes a book read to its last page, and settles the duel", async () => {
+    findUnique.mockResolvedValue({
+      userId: "u1",
+      shelf: "READING",
+      bookId: "b1",
+    });
+
+    const result = await applyReadingProgress({ ...progress, pagesRead: 300 });
+
+    expect(result).toEqual({ ok: true, promoted: true });
+    expect(wrote().shelf).toBe("READ");
+    expect(wrote().finishedAt).toBeInstanceOf(Date);
+    // A duel is won by finishing the book, wherever that happens — which is
+    // the reason this function exists instead of a second copy for mobile.
+    expect(settle).toHaveBeenCalledWith("u1", "b1");
+  });
+
+  it("does not re-stamp a book already on the read shelf", async () => {
+    findUnique.mockResolvedValue({ userId: "u1", shelf: "READ", bookId: "b1" });
+
+    const result = await applyReadingProgress({ ...progress, pagesRead: 300 });
+
+    // Correcting the page count of a finished book must not overwrite the
+    // date it was finished on.
+    expect(result).toEqual({ ok: true, promoted: false });
+    expect(wrote().finishedAt).toBeUndefined();
+    expect(settle).not.toHaveBeenCalled();
+  });
+
+  it("does not take a read book off its shelf when pages are corrected down", async () => {
+    findUnique.mockResolvedValue({ userId: "u1", shelf: "READ", bookId: "b1" });
+
+    await applyReadingProgress({ ...progress, pagesRead: 10 });
+
+    expect(wrote().shelf).toBeUndefined();
+    expect(wrote().finishedAt).toBeUndefined();
   });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
@@ -35,11 +35,18 @@ export default function ShelvesScreen() {
   const load = useCallback(
     async (which: Shelf) => {
       if (!token) return;
-      setError(null);
       try {
         const { books } = await fetchBooks(token, which);
         setBooks(books);
+        setError(null);
       } catch (e) {
+        // The token has gone bad — expired, or an account that is no longer
+        // there. `useSession` only checks that at launch, so a screen that
+        // meets a 401 has to say so itself or the reader waits forever.
+        if (e instanceof ApiError && e.status === 401) {
+          await signOut();
+          return;
+        }
         setBooks([]);
         setError(
           e instanceof ApiError && e.code === "network"
@@ -48,13 +55,19 @@ export default function ShelvesScreen() {
         );
       }
     },
-    [token],
+    [token, signOut],
   );
 
-  useEffect(() => {
-    setBooks(null);
-    void load(shelf);
-  }, [shelf, load]);
+  // Fetched on focus rather than on mount. Progress saved on the book screen
+  // changes the numbers on this one, and coming back to a page count that is
+  // quietly out of date is the kind of wrong that makes an app feel broken.
+  // `useFocusEffect` re-runs when its callback changes as well, so a shelf
+  // switch is covered and this stays the only place that fetches.
+  useFocusEffect(
+    useCallback(() => {
+      void load(shelf);
+    }, [load, shelf]),
+  );
 
   // Hooks first, redirects after — a `<Redirect>` returned above `useEffect`
   // would change the number of hooks between renders and crash the screen.
@@ -98,7 +111,13 @@ export default function ShelvesScreen() {
           return (
             <Pressable
               key={option}
-              onPress={() => setShelf(option)}
+              // Emptying the list here rather than in an effect on `shelf`:
+              // it belongs to the tap, and React asks for state changes in
+              // the handler that causes them, not in a render afterwards.
+              onPress={() => {
+                setBooks(null);
+                setShelf(option);
+              }}
               style={[styles.tab, active && styles.tabActive]}
             >
               <Text style={[styles.tabText, active && styles.tabTextActive]}>
@@ -150,7 +169,11 @@ function BookRow({ item }: { item: ShelfBook }) {
       }
     >
       {item.book.coverUrl ? (
-        <Image source={{ uri: item.book.coverUrl }} style={styles.cover} />
+        <Image
+          source={{ uri: item.book.coverUrl }}
+          style={styles.cover}
+          alt={item.book.title}
+        />
       ) : (
         // No cover: the spine stands in, so the row keeps its rhythm instead
         // of collapsing to text width.

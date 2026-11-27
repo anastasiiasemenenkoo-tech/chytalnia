@@ -169,3 +169,32 @@ export function fetchBook(token: string, id: string) {
     { token },
   );
 }
+
+/**
+ * Save where the reader has got to.
+ *
+ * Answers with the whole saved record, not an acknowledgement: reaching the
+ * last page moves the book to the read shelf and stamps a finish date, and
+ * the screen should show what the server decided rather than guess at it.
+ * `promoted` says whether that move just happened, which is worth a word to
+ * the reader.
+ *
+ * Fails with the server's own validation keys — `pagesReadRange`,
+ * `totalPagesRange`, `pagesExceedTotal` — the same ones the web form is
+ * checked against. The wording for them lives on the screen.
+ */
+export function updateProgress(
+  token: string,
+  id: string,
+  pagesRead: number,
+  totalPages: number,
+) {
+  return call<{ book: BookDetail; promoted: boolean }>(
+    `/api/mobile/books/${encodeURIComponent(id)}/progress`,
+    {
+      token,
+      method: "PATCH",
+      body: JSON.stringify({ pagesRead, totalPages }),
+    },
+  );
+}
